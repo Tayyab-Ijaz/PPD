@@ -1,0 +1,19 @@
+{
+  "built": "2026-09-21",
+  "source_commit": "0f8e564",
+  "webapp_app_has_uncommitted_changes": false,
+  "files": {
+    "assets/hero.png": "e095742bafe30f45d2bee4b861da3e82931b3c90ce1d8889dc081dd8ac3b9610",
+    "assets/icon-192.png": "72ed0a150a137db965a66fa8be66abc06909bf492da46f0bfb4be50fe6373838",
+    "assets/icon-512.png": "54d540955b213866ce55d85d15b54112e13ca5ca0cc962fb1100c5b53f13e187",
+    "assets/logo.png": "12ebcb102d8bef7888a60ae1d05b604b53d0e37053e0e747da05cd1f6230bf67",
+    "assets/logo1.png": "8aeb9377a5a5262805d96cacd55aef141461927b958a33618c5c61d4b62a1fb5",
+    "core_symptoms.js": "5a3873ff33bc634d6b9edfc5fb60719cca959b4a283875b024e7e2f196a1865e",
+    "escalation_content.js": "773a719aa6c787e207b160fd2bf642de960196a837c8d9643c86ce39d2b339fd",
+    "icon.svg": "0d32fcdb0292ecce6872353bd333d2c5798150be6a44e8058274e0a4faf3077a",
+    "index.html": "ebbd13e50a14b958ad3d420723aed5eeafc8f0e3759928ff125dcf117ed75312",
+    "manifest.json": "6e66b1fc8daa369c198c3c5918f6e7854fb57d94a4d830c63f1b99bf30cb42c8",
+    "postpartum_module.js": "8e5667689014aee6c4d94ec49e764cefa1ec6be98de921911a652efedf668bc1",
+    "service-worker.js": "a0e1c7495382d6fea02edbe794c51244d27c90deb611933893214f8f9347e603"
+  }
+}

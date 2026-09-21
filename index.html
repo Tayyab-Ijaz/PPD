@@ -1,0 +1,1362 @@
+
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Everything this page needs is same-origin and nothing may be sent anywhere: connect-src is 'none'. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; manifest-src 'self'; worker-src 'self';">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1E8F6F">
+<link rel="icon" type="image/png" href="assets/logo.png?v=2">
+<title>PPD-Adapt — Adaptive Mental Health Screening</title>
+<style>
+  :root{
+    --bg:#F6F8F5;
+    --bg-soft:#EEF3EE;
+    --card:#FFFFFF;
+    --line:#E1E7E1;
+    --ink:#182231;
+    --ink-soft:#5B6670;
+    --ink-faint:#8A9490;
+    --teal:#1E8F6F;
+    --teal-deep:#0F5C48;
+    --teal-pale:#E4F5EE;
+    --lav:#7C6FCB;
+    --lav-deep:#584AAE;
+    --lav-pale:#EFEDFB;
+    --blue:#3E7CB1;
+    --blue-pale:#E7F1F9;
+    --amber:#B9812E;
+    --amber-pale:#FBF1E1;
+    --brick:#A24A3F;
+    --brick-pale:#F8EAE8;
+    --r-lg:20px;
+    --r-md:14px;
+    --r-sm:10px;
+    --shadow: 0 1px 2px rgba(20,30,25,.05), 0 10px 28px -14px rgba(20,30,25,.14);
+    --serif: Georgia,"Iowan Old Style","Palatino Linotype","Book Antiqua",serif;
+    --sans: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  }
+  html[data-theme="dark"]{
+    --bg:#10160F;
+    --bg-soft:#151B14;
+    --card:#171D16;
+    --line:#293028;
+    --ink:#EAF0E7;
+    --ink-soft:#A9B4A5;
+    --ink-faint:#6E786B;
+    --teal-pale:#153A2D;
+    --lav-pale:#231D3E;
+    --blue-pale:#132638;
+    --amber-pale:#312610;
+    --brick-pale:#331F1C;
+    --shadow: 0 1px 2px rgba(0,0,0,.5), 0 14px 32px -16px rgba(0,0,0,.65);
+  }
+  html[data-theme="dark"] .nav{background:rgba(16,22,15,.88);border-bottom-color:rgba(234,240,231,.12);}
+  html[data-theme="dark"] .hero{background:
+      radial-gradient(620px 360px at 18% 0%, rgba(124,111,203,.18), transparent 60%),
+      radial-gradient(640px 360px at 90% 12%, rgba(30,143,111,.16), transparent 60%),
+      linear-gradient(180deg,#121b17,#10160f);}
+  html[data-theme="dark"] .icon-btn,
+  html[data-theme="dark"] .theme-toggle{background:rgba(23,29,22,.86);border-color:rgba(234,240,231,.14);}
+  html[data-theme="dark"] .card,
+  html[data-theme="dark"] .panel,
+  html[data-theme="dark"] .info-card,
+  html[data-theme="dark"] .modal-box,
+  html[data-theme="dark"] .safety-box{background:var(--card);border-color:var(--line);}
+  html[data-theme="dark"] .opt{background:#1d261e;border-color:#344237;color:var(--ink);}
+  html[data-theme="dark"] .opt:hover{background:#24382c;border-color:var(--teal);}
+  html[data-theme="dark"] .opt.selected{background:#153a2d;border-color:var(--teal);}
+  html[data-theme="dark"] .option-circle{background:#151b14;border-color:#718275;}
+  html[data-theme="dark"] .safety-overlay{background:#241716;}
+  html[data-theme="dark"] .flag-box{background:#312610;color:#e7bd69;}
+  html[data-theme="dark"] .result-bar{background:#29352c;}
+  html[data-theme="dark"] .modal-box details{background:var(--bg-soft);}
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;overflow-x:hidden;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:var(--sans);overflow-x:hidden;}
+  body{position:relative;-webkit-font-smoothing:antialiased;transition:background .25s ease,color .25s ease;}
+  body::before,body::after{display:none !important;}
+  header.nav,main,footer.site{position:relative;z-index:1;}
+  img,svg{display:block;}
+  a{color:inherit;}
+  button{font-family:inherit;}
+  .icon{width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+  .container{width:100%;max-width:1160px;margin:0 auto;padding:0 24px;}
+  h1,h2,h3{font-family:var(--serif);font-weight:400;margin:0;}
+  p{margin:0;}
+  .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);}
+
+  /* ---------- NAV ---------- */
+  .nav{position:sticky;top:0;z-index:50;background:rgba(246,248,245,.82);backdrop-filter:blur(14px);border-bottom:1px solid rgba(25,47,40,.08);}
+  .nav-inner{max-width:1200px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:18px;min-height:76px;}
+  .brand{display:flex;align-items:center;gap:11px;text-decoration:none;margin-right:auto;}
+  .brand-mark{width:174px;height:50px;border-radius:0;background:transparent;border:none;display:flex;align-items:center;justify-content:flex-start;overflow:visible;flex:none;padding:0;box-shadow:none;}
+  .brand-mark img{width:100%;height:100%;object-fit:contain;object-position:left center;display:block;filter:drop-shadow(0 2px 6px rgba(17,52,42,.08));}
+  .brand-text{display:none;}
+  .nav-links{display:none;}
+  .nav-links a{font-size:14.5px;color:var(--ink-soft);text-decoration:none;padding:7px 0;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;}
+  .nav-links a:hover{color:var(--ink);}
+  .nav-links a.current{color:var(--teal-deep);border-color:var(--teal);font-weight:600;}
+  .nav-actions{display:flex;align-items:center;gap:10px;}
+  .icon-btn{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.35);border:1px solid rgba(25,47,40,.08);color:var(--ink-soft);padding:8px 14px;border-radius:999px;cursor:pointer;font-size:13.5px;transition:all .15s ease;box-shadow:0 10px 18px -18px rgba(17,52,42,.28);}
+  .icon-btn .icon{width:17px;height:17px;}
+  .icon-btn:hover{background:var(--bg-soft);color:var(--ink);border-color:var(--line);}
+  .icon-btn span.label{white-space:nowrap;}
+  .theme-toggle{display:flex;align-items:center;background:rgba(255,255,255,.35);border:1px solid rgba(25,47,40,.08);border-radius:999px;padding:3px;box-shadow:0 10px 18px -18px rgba(17,52,42,.28);}
+  .theme-toggle button{border:none;background:none;color:var(--ink-faint);width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+  .theme-toggle button.active{background:var(--card);color:var(--teal-deep);box-shadow:0 10px 18px -16px rgba(17,52,42,.30);}
+  .theme-toggle .icon{width:15px;height:15px;}
+  .hamburger{display:none;background:none;border:1px solid var(--line);border-radius:10px;width:38px;height:38px;align-items:center;justify-content:center;color:var(--ink);cursor:pointer;}
+  .hamburger .icon{width:19px;height:19px;}
+
+  .mobile-menu{display:none;position:fixed;inset:0;z-index:60;background:var(--bg);padding:18px 22px;flex-direction:column;}
+  .mobile-menu.open{display:flex;}
+  .mobile-menu-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:26px;}
+  .mobile-menu a{font-size:19px;font-family:var(--serif);color:var(--ink);text-decoration:none;padding:14px 0;border-bottom:1px solid var(--line);}
+  .mobile-menu .icon-btn{justify-content:flex-start;margin-top:8px;padding:12px 4px;border-radius:0;border-bottom:1px solid var(--line);font-size:15px;}
+
+  @media (max-width:880px){
+    .nav-links{display:none;}
+    .nav-actions .icon-btn span.label{display:none;}
+    .hamburger{display:flex;}
+  }
+
+  /* ---------- HERO ---------- */
+  .hero{position:relative;overflow:hidden;background:
+      radial-gradient(620px 360px at 18% 0%, rgba(124,111,203,.10), transparent 60%),
+      radial-gradient(640px 360px at 90% 12%, rgba(30,143,111,.10), transparent 60%),
+      linear-gradient(180deg, rgba(245,248,246,.9), rgba(240,245,242,.92));
+      min-height:0;}
+  .hero-inner{max-width:1210px;margin:0 auto;padding:0 16px 0;display:grid;grid-template-columns:1.04fr .96fr;gap:18px;align-items:center;}
+  .eyebrow-chip{display:none !important;}
+  .hero h1{font-size:clamp(42px,4.5vw,86px);line-height:.94;color:var(--ink);margin:0 0 18px;letter-spacing:-.06em;max-width:620px;}
+  .hero-art::before, .hero-art::after, .hero-art .blob, .hero-art .orb, .hero-art .chip{display:none !important;}
+  .hero h1 em{font-style:normal;color:var(--teal-deep);}
+  .hero-lede{font-size:18px;line-height:1.7;color:var(--ink-soft);max-width:48ch;}
+  .cta-row{display:flex;align-items:center;gap:18px;margin-top:30px;flex-wrap:wrap;}
+  .btn-primary{display:inline-flex;align-items:center;justify-content:center;gap:12px;background:linear-gradient(135deg,#1d8e73 0%, #0f5c48 100%);color:#f2f8f5;border:none;padding:18px 30px;border-radius:14px;font-size:17px;font-weight:700;letter-spacing:-0.02em;cursor:pointer;box-shadow:0 18px 32px -18px rgba(15,92,72,.9);transition:transform .15s ease, box-shadow .15s ease, filter .15s ease; font-family:var(--sans);}
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:0 20px 34px -18px rgba(15,92,72,.92);filter:brightness(1.02);}
+  .btn-primary:active{transform:translateY(0);}
+  .btn-primary .icon{width:18px;height:18px;flex-shrink:0;}
+  .btn-ghost-link{font-size:14.5px;color:var(--ink-soft);text-decoration:underline;text-underline-offset:4px;cursor:pointer;background:none;border:none;padding:0;}
+
+  .hero-art{position:relative;height:clamp(300px,40vw,620px);display:flex;align-items:center;justify-content:center;overflow:visible;background:transparent;border-radius:0;}
+  .hero-art .hero-image{position:relative;z-index:2;width:100%;max-width:780px;height:100%;object-fit:contain;object-position:center;filter:drop-shadow(0 30px 40px rgba(25,54,46,.12));}
+  .hero-art .blob,.hero-art .orb,.hero-art .chip{display:none;}
+  .hero-art .blob{position:absolute;inset:0;background:
+      radial-gradient(240px 240px at 30% 30%, color-mix(in srgb, var(--lav) 26%, transparent), transparent 70%),
+      radial-gradient(260px 260px at 70% 70%, color-mix(in srgb, var(--teal) 24%, transparent), transparent 70%);
+      border-radius:50%;filter:blur(2px);}
+  .hero-art .orb{position:relative;width:210px;height:210px;border-radius:50%;background:linear-gradient(155deg,var(--card),var(--bg-soft));border:1px solid var(--line);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;color:var(--teal-deep);}
+  .hero-art .orb .icon{width:92px;height:92px;stroke-width:1.3;}
+  .hero-art .chip{position:absolute;display:flex;align-items:center;justify-content:center;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);animation:float 6s ease-in-out infinite;}
+  .hero-art .chip .icon{width:20px;height:20px;}
+  .chip-1{width:52px;height:52px;top:6%;left:4%;color:var(--lav);animation-delay:.2s;}
+  .chip-2{width:44px;height:44px;bottom:10%;left:10%;color:var(--blue);animation-delay:1.1s;}
+  .chip-3{width:48px;height:48px;top:12%;right:4%;color:var(--amber);animation-delay:.6s;}
+  .chip-4{width:56px;height:56px;bottom:4%;right:8%;color:var(--teal);animation-delay:1.6s;}
+  @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+  @media (prefers-reduced-motion:reduce){.hero-art .chip{animation:none;}}
+
+  @media (max-width:880px){
+    .nav-inner{min-height:68px;padding:8px 20px;}
+    .hero-inner{grid-template-columns:1fr;padding-top:16px;}
+    .hero h1{font-size:32px;}
+    .hero-art{height:320px;order:-1;}
+  }
+
+  @media (max-width:768px){
+    .nav-inner{padding:8px 18px;}
+    .brand-mark{width:150px;height:44px;}
+    .coverge .dom-label{font-size:11px;}
+    .card{padding:28px 20px;border-radius:22px;}
+    .prompt-frame{font-size:11px;padding:6px 10px;}
+    h1.q{font-size:27px;line-height:1.26;}
+    .opt{min-height:58px;padding:14px 16px;font-size:15px;}
+    .foot-note{margin-top:18px;}
+  }
+
+  @media (max-width:480px){
+    .nav-inner{padding:8px 10px;gap:8px;}
+    .nav-actions{gap:6px;}
+    .theme-toggle{padding:2px;}
+    .theme-toggle button{width:26px;height:26px;}
+    .icon-btn{padding:6px 8px;}
+    .icon-btn .label{display:none;}
+    .hero{padding-bottom:0;}
+    .hero-inner{padding:0 10px 0;gap:10px;}
+    .hero h1{font-size:clamp(30px,8vw,42px);line-height:.96;letter-spacing:-.05em;margin:0 0 12px;max-width:100%;}
+    .hero-lede{font-size:15px;line-height:1.55;max-width:100%;}
+    .cta-row{margin-top:18px;}
+    .btn-primary{width:100%;justify-content:center;padding:14px 18px;}
+    .hero-art{height:260px;max-width:100%;}
+    footer.site{padding:10px 0 12px;}
+  }
+
+  /* ---------- BEFORE WE BEGIN ---------- */
+  #before-begin, #about, #resources, #contact { display:none !important; }
+  .section{padding:56px 0;max-width:100%;overflow-x:hidden;}
+  .panel{background:rgba(255,255,255,.82);border:1px solid rgba(25,47,40,.08);border-radius:28px;box-shadow:0 18px 48px -28px rgba(15,35,30,.22);padding:34px 32px;}
+  .panel-head{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap;}
+  .panel-head h2{font-size:26px;color:var(--ink);display:flex;align-items:center;gap:10px;}
+  .panel-head h2 .icon{width:22px;height:22px;color:var(--lav);}
+  .panel-head p{margin-top:10px;font-size:14.5px;line-height:1.7;color:var(--ink-soft);max-width:64ch;}
+  .privacy-badge{display:flex;align-items:center;gap:12px;background:var(--teal-pale);border:1px solid rgba(30,143,111,.18);border-radius:16px;padding:14px 18px;flex:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.5);}
+  .privacy-badge .icon{width:22px;height:22px;color:var(--teal-deep);}
+  .privacy-badge b{display:block;font-size:13.5px;color:var(--teal-deep);}
+  .privacy-badge span{display:block;font-size:12px;color:var(--ink-soft);margin-top:2px;}
+
+  .domain-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-top:28px;}
+  .domain-card{border:1px solid var(--line);border-radius:var(--r-md);padding:20px 18px 18px;background:var(--bg-soft);position:relative;}
+  .domain-card .d-icon{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
+  .domain-card .d-icon .icon{width:21px;height:21px;}
+  .domain-card h3{font-size:15.5px;font-family:var(--sans);font-weight:700;color:var(--ink);}
+  .domain-card p{font-size:12.5px;color:var(--ink-soft);margin-top:4px;line-height:1.5;}
+  .domain-card .d-bar{height:4px;border-radius:3px;background:var(--line);margin-top:14px;overflow:hidden;}
+  .domain-card .d-bar i{display:block;height:100%;border-radius:3px;}
+  .domain-card.soon{opacity:.62;}
+  .domain-card .soon-badge{position:absolute;top:14px;right:14px;font-size:9.5px;letter-spacing:.05em;font-weight:700;color:var(--ink-faint);background:var(--card);border:1px solid var(--line);padding:3px 7px;border-radius:20px;}
+  .d-dep .d-icon{background:var(--teal-pale);color:var(--teal-deep);}
+  .d-dep .d-bar i{background:var(--teal);width:100%;}
+  .d-anx .d-icon{background:var(--lav-pale);color:var(--lav-deep);}
+  .d-anx .d-bar i{background:var(--lav);width:100%;}
+  .d-str .d-icon{background:var(--blue-pale);color:var(--blue);}
+  .d-str .d-bar i{background:var(--blue);width:100%;}
+  .d-fat .d-icon{background:var(--amber-pale);color:var(--amber);}
+  .d-fat .d-bar i{background:var(--amber);width:28%;}
+  .d-slp .d-icon{background:var(--bg);color:var(--ink-faint);border:1px solid var(--line);}
+  .d-slp .d-bar i{background:var(--ink-faint);width:28%;}
+
+  @media (max-width:960px){.domain-grid{grid-template-columns:repeat(3,1fr);}}
+  @media (max-width:640px){.domain-grid{grid-template-columns:repeat(2,1fr);} .panel{padding:26px 20px;}}
+
+  .panel-foot{display:flex;gap:0;margin-top:26px;border-top:1px solid var(--line);padding-top:22px;flex-wrap:wrap;}
+  .panel-foot .foot-item{flex:1;min-width:240px;display:flex;gap:12px;align-items:flex-start;padding:6px 18px;cursor:pointer;border-radius:var(--r-sm);transition:background .15s;background:none;border:none;text-align:left;}
+  .panel-foot .foot-item:hover{background:var(--bg-soft);}
+  .panel-foot .foot-item:first-child{border-right:1px solid var(--line);}
+  @media (max-width:640px){.panel-foot .foot-item:first-child{border-right:none;border-bottom:1px solid var(--line);padding-bottom:16px;}}
+  .foot-icon{width:36px;height:36px;border-radius:10px;background:var(--teal-pale);color:var(--teal-deep);display:flex;align-items:center;justify-content:center;flex:none;}
+  .foot-icon.info{background:var(--lav-pale);color:var(--lav-deep);}
+  .foot-icon .icon{width:17px;height:17px;}
+  .foot-item b{display:block;font-size:14px;color:var(--ink);}
+  .foot-item span{display:block;font-size:12.5px;color:var(--ink-soft);margin-top:2px;}
+
+  .panel-start{display:flex;justify-content:center;margin-top:30px;}
+
+  /* ---------- ASSESSMENT ---------- */
+  .home-page{display:block;}
+  .home-page.hidden{display:none;}
+  .assessment-section{display:none; margin-top:24px; padding-top:8px;max-width:100%;overflow-x:hidden;}
+  .assessment-section.visible{display:block;}
+  .screening-page{min-height:calc(100vh - 76px);background:
+      radial-gradient(circle at 10% 10%, rgba(188,231,222,.22), transparent 28%),
+      radial-gradient(circle at 90% 30%, rgba(194,218,245,.18), transparent 30%),
+      #f8fbfa;}
+  .coverage{display:flex;gap:12px;max-width:760px;margin:0 auto 20px;align-items:flex-end;}
+  .coverage .dom{flex:1;}
+  .coverage .dom-label{display:none;}
+  .coverage .bar{height:6px;border-radius:999px;background:#e5ece8;overflow:hidden;}
+  .coverage .bar>i{display:block;height:100%;border-radius:999px;transition:width .4s ease;}
+  .dom-dep .bar>i{background:var(--teal);}
+  .dom-anx .bar>i{background:var(--lav);}
+  .dom-str .bar>i{background:var(--blue);}
+  .dom-fat .bar>i{background:var(--amber);}
+  .dom-slp .bar>i{background:var(--ink-faint);}
+  .quiz-wrap{width:100%;max-width:760px;margin:0 auto;overflow-x:hidden;}
+  #screen{width:100%;max-width:100%;overflow-x:hidden;}
+
+  .card{width:100%;max-width:100%;overflow:hidden;background:var(--card);border:1px solid var(--line);border-radius:28px;padding:36px 42px;box-shadow:0 18px 50px rgba(18,63,57,.07);}
+  h1.q{font-family:var(--serif);font-weight:400;font-size:clamp(28px,2.8vw,42px);line-height:1.22;letter-spacing:-.03em;color:var(--ink);margin:18px 0 26px;}
+  .question-inner{display:flex;flex-direction:column;gap:0;}
+  .prompt-frame{display:inline-block;font-size:12px;color:#0a6d5b;margin-bottom:0;padding:7px 12px;border-radius:999px;background:#e7f6f1;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;align-self:flex-start;}
+  .lang-toggle{display:inline-flex;border:1px solid rgba(25,47,40,.08);border-radius:999px;overflow:hidden;margin-bottom:18px;background:rgba(240,244,242,.8);}
+  .lang-toggle button{border:none;background:transparent;padding:7px 14px;font-size:12.5px;color:var(--ink-soft);cursor:pointer;font-family:var(--sans);}
+  .lang-toggle button.active{background:var(--teal);color:white;}
+  .urdu-flag{font-size:12px;color:var(--amber);background:rgba(251,241,225,.9);border:1px solid rgba(185,129,46,.28);padding:10px 12px;border-radius:10px;margin-bottom:16px;line-height:1.5;}
+  .options{display:flex;flex-direction:column;gap:12px;margin-top:10px;}
+  .opt{display:flex;align-items:center;gap:14px;width:100%;min-height:64px;text-align:left;border:1.5px solid var(--line);background:var(--card);color:var(--ink);padding:16px 20px;border-radius:17px;font-size:16px;font-family:var(--sans);cursor:pointer;transition:all .2s ease;box-shadow:0 8px 18px -18px rgba(25,47,40,.5);}
+  .opt:hover{border-color:rgba(22,134,111,.7);background:#f3fbf8;transform:translateY(-1px);box-shadow:0 12px 24px -18px rgba(15,92,72,.34);}
+  .opt:active{transform:scale(.99);}
+  .opt.selected{border-color:#16866f;background:#eaf8f3;box-shadow:0 5px 18px rgba(22,134,111,.10);}
+  .option-circle{display:inline-block;width:20px;height:20px;flex:0 0 20px;border:2px solid #aebfba;border-radius:50%;background:#fff;transition:all .18s ease;}
+  .opt.selected .option-circle{border:6px solid #16866f;box-shadow:0 0 0 1px rgba(22,134,111,.12);}
+  .foot-note{font-size:11.5px;color:#7d8d89;margin-top:20px;text-align:center;}
+
+  .safety-overlay{position:fixed;inset:0;background:var(--brick-pale);z-index:999;display:flex;align-items:center;justify-content:center;padding:24px;}
+  .safety-box{max-width:480px;background:rgba(255,255,255,.96);border:1px solid rgba(162,74,63,.22);border-radius:20px;padding:30px 26px;box-shadow:0 28px 48px -28px rgba(61,31,27,.28);}
+  .safety-box h2{font-family:var(--serif);font-weight:400;color:var(--brick);font-size:24px;margin:0 0 12px;}
+  .safety-box p{font-size:15px;line-height:1.6;color:var(--ink);margin:0 0 14px;}
+  .safety-list{background:var(--brick-pale);border-radius:10px;padding:16px 18px;margin:16px 0;}
+  .safety-list div{font-size:14px;padding:6px 0;border-bottom:1px solid color-mix(in srgb,var(--brick) 15%,transparent);}
+  .safety-list div:last-child{border-bottom:none;}
+  .safety-continue{margin-top:18px;width:100%;background:var(--teal);color:#fff;border:none;padding:13px;border-radius:10px;font-size:14.5px;cursor:pointer;}
+
+  .result-domain{margin-bottom:22px;}
+  .result-domain .rd-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;}
+  .result-domain .rd-name{font-family:var(--serif);font-size:16px;}
+  .result-domain .rd-level{font-size:12.5px;color:var(--ink-soft);}
+  .result-bar{height:10px;border-radius:6px;background:var(--line);overflow:hidden;}
+  .result-bar>i{display:block;height:100%;}
+  .attribution{margin-top:8px;font-size:12.5px;color:var(--ink-soft);}
+  .attribution b{color:var(--ink);font-weight:600;}
+  .flag-box{background:var(--amber-pale);border:1px solid color-mix(in srgb,var(--amber) 30%,var(--line));border-radius:10px;padding:12px 14px;font-size:12.5px;color:var(--amber);margin-top:16px;}
+  .disclaimer{font-size:11.5px;color:var(--ink-soft);margin-top:22px;padding-top:16px;border-top:1px solid var(--line);line-height:1.6;}
+
+  /* ---------- INFO SECTIONS ---------- */
+  .info-section h2{font-size:26px;margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+  .info-section h2 .icon{width:21px;height:21px;color:var(--teal);}
+  .info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:22px;}
+  .info-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-md);padding:22px;box-shadow:var(--shadow);}
+  .info-card .i-icon{width:38px;height:38px;border-radius:10px;background:var(--teal-pale);color:var(--teal-deep);display:flex;align-items:center;justify-content:center;margin-bottom:12px;}
+  .info-card .i-icon .icon{width:18px;height:18px;}
+  .info-card h3{font-size:15px;font-family:var(--sans);font-weight:700;margin-bottom:6px;}
+  .info-card p{font-size:13.5px;color:var(--ink-soft);line-height:1.65;}
+  .lede{font-size:15px;color:var(--ink-soft);line-height:1.7;max-width:74ch;}
+  @media (max-width:880px){.info-grid{grid-template-columns:1fr 1fr;}}
+  @media (max-width:560px){.info-grid{grid-template-columns:1fr;}}
+
+  .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:24px;}
+  .contact-form{display:flex;flex-direction:column;gap:14px;}
+  .contact-form label{font-size:12.5px;color:var(--ink-soft);font-weight:600;margin-bottom:5px;display:block;}
+  .contact-form input,.contact-form textarea{width:100%;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:11px 13px;font-size:14.5px;font-family:var(--sans);}
+  .contact-form input:focus,.contact-form textarea:focus{outline:2px solid var(--teal);outline-offset:1px;border-color:var(--teal);}
+  .contact-form textarea{resize:vertical;min-height:96px;}
+  .contact-note{font-size:11.5px;color:var(--ink-faint);margin-top:2px;}
+  .form-msg{font-size:13.5px;padding:11px 14px;border-radius:10px;margin-top:4px;display:none;}
+  .form-msg.show{display:block;}
+  .form-msg.ok{background:var(--teal-pale);color:var(--teal-deep);border:1px solid color-mix(in srgb,var(--teal) 30%,var(--line));}
+  .form-msg.err{background:var(--brick-pale);color:var(--brick);border:1px solid color-mix(in srgb,var(--brick) 30%,var(--line));}
+  .contact-side .info-card{margin-bottom:14px;}
+  @media (max-width:800px){.contact-grid{grid-template-columns:1fr;}}
+
+  footer.site{display:none !important;}
+  .footer-inner{display:none !important;}
+  .footer-links{display:none !important;}
+  .footer-links a{text-decoration:none;color:var(--ink-faint);}
+  .footer-links a:hover{color:var(--ink);}
+
+  /* ---------- MODALS ---------- */
+  .modal-backdrop{position:fixed;inset:0;background:rgba(10,15,12,.45);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;}
+  .modal-backdrop.open{display:flex;}
+  .modal-box{background:var(--card);border-radius:var(--r-lg);max-width:520px;width:100%;max-height:84vh;overflow:auto;padding:30px 28px;box-shadow:var(--shadow);position:relative;}
+  .modal-box h2{font-size:21px;display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+  .modal-box h2 .icon{width:20px;height:20px;color:var(--teal-deep);}
+  .modal-box p{font-size:14px;line-height:1.7;color:var(--ink-soft);margin-bottom:12px;}
+  .modal-box ul{margin:0 0 14px;padding-left:20px;}
+  .modal-box li{font-size:14px;line-height:1.7;color:var(--ink-soft);margin-bottom:6px;}
+  .modal-box li b{color:var(--ink);}
+  .modal-close{position:absolute;top:18px;right:18px;background:var(--bg-soft);border:1px solid var(--line);border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-soft);}
+  .modal-close .icon{width:15px;height:15px;}
+  .modal-box details{border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px;background:var(--bg-soft);}
+  .modal-box summary{cursor:pointer;font-size:14px;font-weight:600;color:var(--ink);}
+  .modal-box details p{margin-top:8px;margin-bottom:0;}
+</style>
+</head>
+<body>
+
+<!-- ============ NAV ============ -->
+<header class="nav">
+  <div class="nav-inner">
+    <a href="#home" class="brand" id="brandHomeLink">
+      <span class="brand-mark"><img src="assets/logo1.png" alt="PPD-Adapt logo"></span>
+      <span class="brand-text">PPD-Adapt<small>UNDERSTAND · SUPPORT · IMPROVE</small></span>
+    </a>
+    <nav class="nav-links">
+      <a href="#home" class="nav-link current" data-target="home">Home</a>
+      <a href="#about" class="nav-link" data-target="about">About</a>
+      <a href="#assessment-anchor" class="nav-link" data-target="assessment-anchor">Assessment</a>
+      <a href="#resources" class="nav-link" data-target="resources">Resources</a>
+      <a href="#contact" class="nav-link" data-target="contact">Contact</a>
+    </nav>
+    <div class="nav-actions">
+      <div class="theme-toggle" role="group" aria-label="Theme">
+        <button id="themeLightBtn" title="Light mode" aria-label="Light mode">
+          <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        </button>
+        <button id="themeDarkBtn" title="Dark mode" aria-label="Dark mode">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M20 14.2A8.4 8.4 0 1 1 9.8 4a6.9 6.9 0 0 0 10.2 10.2Z"/></svg>
+        </button>
+      </div>
+      <button class="icon-btn" id="privacyBtn">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 5-3.4 7.6-7 9-3.6-1.4-7-4-7-9V6l7-3Z"/></svg>
+        <span class="label">Privacy</span>
+      </button>
+      <button class="icon-btn" id="helpBtn">
+        <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.1 9.2a3 3 0 1 1 4.6 2.5c-1 .6-1.7 1.2-1.7 2.3"/><circle cx="12" cy="17" r=".9" fill="currentColor" stroke="none"/></svg>
+        <span class="label">Help</span>
+      </button>
+      <button class="hamburger" id="hamburgerBtn" aria-label="Open menu">
+        <svg class="icon" viewBox="0 0 24 24"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ============ MOBILE MENU ============ -->
+<div class="mobile-menu" id="mobileMenu">
+  <div class="mobile-menu-top">
+    <span class="brand-text">Menu</span>
+    <button class="modal-close" id="mobileMenuClose"><svg class="icon" viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg></button>
+  </div>
+  <a href="#home" class="nav-link" data-target="home">Home</a>
+  <a href="#about" class="nav-link" data-target="about">About</a>
+  <a href="#assessment-anchor" class="nav-link" data-target="assessment-anchor">Assessment</a>
+  <a href="#resources" class="nav-link" data-target="resources">Resources</a>
+  <a href="#contact" class="nav-link" data-target="contact">Contact</a>
+  <button class="icon-btn" id="mPrivacyBtn"><svg class="icon" viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 5-3.4 7.6-7 9-3.6-1.4-7-4-7-9V6l7-3Z"/></svg><span class="label">Privacy</span></button>
+  <button class="icon-btn" id="mHelpBtn"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.1 9.2a3 3 0 1 1 4.6 2.5c-1 .6-1.7 1.2-1.7 2.3"/><circle cx="12" cy="17" r=".9" fill="currentColor" stroke="none"/></svg><span class="label">Help</span></button>
+</div>
+
+<main>
+  <!-- ============ HERO ============ -->
+  <div id="homePage" class="home-page">
+    <section class="hero" id="home">
+      <div class="hero-inner">
+        <div>
+          <h1>A clearer picture of<br>how you're <em>feeling</em>.</h1>
+          <p class="hero-lede">PPD-Adapt asks a few thoughtful questions about your mood, anxiety, and stress — and adapts to your answers as you go. It's quick, private, and designed to support your well-being.</p>
+          <div class="cta-row">
+            <button class="btn-primary" id="heroBeginBtn">
+              <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M10 8l6 4-6 4Z" fill="currentColor" stroke="none"/></svg>
+              Begin screening
+            </button>
+          </div>
+        </div>
+        <div class="hero-art" aria-label="Mental wellness illustration">
+          <img class="hero-image" src="assets/hero.png" alt="A calm mental wellness illustration">
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="assessment-anchor"></div>
+
+  <!-- ============ BEFORE WE BEGIN ============ -->
+  <section class="section" id="before-begin">
+    <div class="container">
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <h2><svg class="icon" viewBox="0 0 24 24"><path d="M12 3l1.2 3.6L17 8l-3.8 1.4L12 13l-1.2-3.6L7 8l3.8-1.4L12 3Z"/><path d="M19 14l.5 1.6L21 16l-1.5.4L19 18l-.5-1.6L17 16l1.5-.4L19 14Z"/></svg>Before we begin</h2>
+            <p>This build is an adaptive questionnaire covering Depression, Anxiety, Stress, Fatigue, and Sleep. It asks focused questions one at a time based on your previous answers. Your answers stay on this device the whole session — nothing is sent anywhere.</p>
+          </div>
+          <div class="privacy-badge">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 5-3.4 7.6-7 9-3.6-1.4-7-4-7-9V6l7-3Z"/></svg>
+            <div><b>100% private, on-device</b><span>No data ever leaves your browser</span></div>
+          </div>
+        </div>
+
+        <div class="domain-grid">
+          <div class="domain-card d-dep">
+            <div class="d-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M6.5 17.5a3.8 3.8 0 0 1 .3-7.6 5 5 0 0 1 9.6-1.8 3.6 3.6 0 0 1-.4 9.4H6.5Z"/></svg></div>
+            <h3>Depression</h3>
+            <p>Low mood, loss of interest</p>
+            <div class="d-bar"><i></i></div>
+          </div>
+          <div class="domain-card d-anx">
+            <div class="d-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M9 4a3 3 0 0 0-3 3 3 3 0 0 0-1.2 5.7A3.6 3.6 0 0 0 8 18.5h1V4Z"/><path d="M15 4a3 3 0 0 1 3 3 3 3 0 0 1 1.2 5.7A3.6 3.6 0 0 1 16 18.5h-1V4Z"/></svg></div>
+            <h3>Anxiety</h3>
+            <p>Worry, tension, restlessness</p>
+            <div class="d-bar"><i></i></div>
+          </div>
+          <div class="domain-card d-str">
+            <div class="d-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z"/></svg></div>
+            <h3>Stress</h3>
+            <p>Pressure, overwhelm</p>
+            <div class="d-bar"><i></i></div>
+          </div>
+          <div class="domain-card d-fat">
+            <div class="d-icon"><svg class="icon" viewBox="0 0 24 24"><rect x="2" y="8" width="16" height="8" rx="2.4"/><line x1="20" y1="11" x2="20" y2="13"/><rect x="4.5" y="10" width="4" height="4" fill="currentColor" stroke="none"/></svg></div>
+            <h3>Fatigue</h3>
+            <p>Low energy, exhaustion</p>
+            <div class="d-bar"><i></i></div>
+          </div>
+          <div class="domain-card d-slp">
+            <div class="d-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M20 14.2A8.4 8.4 0 1 1 9.8 4a6.9 6.9 0 0 0 10.2 10.2Z"/><path d="M15.5 3.5h3l-2.6 2.6h2.6"/></svg></div>
+            <h3>Sleep</h3>
+            <p>Quality, duration</p>
+            <div class="d-bar"><i></i></div>
+          </div>
+        </div>
+
+        <div class="panel-foot">
+          <button class="foot-item" id="footPrivacyBtn">
+            <span class="foot-icon"><svg class="icon" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span>
+            <span><b>Your privacy matters</b><span>Your answers stay on this device. We do not send or share your data.</span></span>
+          </button>
+          <button class="foot-item" id="footInfoBtn">
+            <span class="foot-icon info"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><circle cx="12" cy="8" r=".9" fill="currentColor" stroke="none"/></svg></span>
+            <span><b>Screening tool, not a diagnosis</b><span>This tool helps identify what to talk through with a clinician — it does not replace one.</span></span>
+          </button>
+        </div>
+
+        <div class="panel-start">
+          <button class="btn-primary" id="panelStartBtn">
+            <svg class="icon" viewBox="0 0 24 24"><line x1="4" y1="12" x2="20" y2="12"/><path d="M14 6l6 6-6 6"/></svg>
+            Start screening
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ASSESSMENT (hidden until start) ============ -->
+  <section class="section assessment-section" id="assessment">
+    <div class="container">
+      <div class="quiz-wrap"><div id="screen"></div></div>
+    </div>
+  </section>
+
+  <!-- ============ ABOUT ============ -->
+  <section class="section info-section" id="about">
+    <div class="container">
+      <h2><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>About this build</h2>
+      <p class="lede">PPD-Adapt is an adaptive screening prototype. Instead of a fixed, one-size-fits-all questionnaire, it uses an item-response-theory engine to pick the single most informative next question based on everything you've answered so far — which is why most sessions end well before every item has been asked.</p>
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="i-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M4 19l6-12 4 8 3-5 3 9"/></svg></div>
+          <h3>Adaptive by design</h3>
+          <p>Each answer updates a running estimate across five domains, and the engine stops early once it has enough information — or reaches the session limit.</p>
+        </div>
+        <div class="info-card">
+          <div class="i-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 5-3.4 7.6-7 9-3.6-1.4-7-4-7-9V6l7-3Z"/></svg></div>
+          <h3>Runs on your device</h3>
+          <p>The engine, item bank, and scoring all run client-side in this page. Nothing is uploaded, logged, or shared with a server.</p>
+        </div>
+        <div class="info-card">
+          <div class="i-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.1 9.2a3 3 0 1 1 4.6 2.5c-1 .6-1.7 1.2-1.7 2.3"/><circle cx="12" cy="17" r=".9" fill="currentColor" stroke="none"/></svg></div>
+          <h3>Honest about its limits</h3>
+          <p>This is a screening prototype, not a diagnosis. A verified Urdu translation is not wired into this build yet, so English is shown by default.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ RESOURCES ============ -->
+  <section class="section info-section" id="resources">
+    <div class="container">
+      <h2><svg class="icon" viewBox="0 0 24 24"><path d="M4 19.5V6a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v13.5M4 19.5A2 2 0 0 0 6 21h13"/></svg>Resources</h2>
+      <p class="lede">If a session flags a safety concern, this app shows an in-context message before anything else. Beyond that moment, here's general guidance — this build doesn't yet look up region-specific hotline numbers automatically.</p>
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="i-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-6.1-7-11.4A7 7 0 0 1 12 3a7 7 0 0 1 7 6.6C19 14.9 12 21 12 21Z"/></svg></div>
+          <h3>In immediate danger</h3>
+          <p>Contact your local emergency services right away, or go to your nearest emergency department.</p>
+        </div>
+        <div class="info-card">
+          <div class="i-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 5-2 6-2 6h16s-2-1-2-6"/><path d="M10 21a2 2 0 0 0 4 0"/></svg></div>
+          <h3>Talk to someone you trust</h3>
+          <p>A partner, family member, friend, or your doctor or midwife can be a first, low-pressure step.</p>
+        </div>
+        <div class="info-card">
+          <div class="i-icon"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></div>
+          <h3>Bring your results to a visit</h3>
+          <p>The session summary is meant as a conversation-starter with a clinician, not a stand-alone verdict.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CONTACT ============ -->
+  <section class="section info-section" id="contact">
+    <div class="container">
+      <h2><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>Contact</h2>
+      <p class="lede">Questions about this build, the engine, or the underlying item bank — send a note below.</p>
+      <div class="contact-grid">
+        <form class="contact-form" id="contactForm" novalidate>
+          <div>
+            <label for="cName">Name</label>
+            <input id="cName" name="name" type="text" required placeholder="Your name">
+          </div>
+          <div>
+            <label for="cEmail">Email</label>
+            <input id="cEmail" name="email" type="email" required placeholder="you@example.com">
+          </div>
+          <div>
+            <label for="cMsg">Message</label>
+            <textarea id="cMsg" name="message" required placeholder="How can we help?"></textarea>
+          </div>
+          <button type="submit" class="btn-primary" style="align-self:flex-start">
+            <svg class="icon" viewBox="0 0 24 24"><line x1="4" y1="12" x2="20" y2="12"/><path d="M14 6l6 6-6 6"/></svg>
+            Send message
+          </button>
+          <div class="form-msg" id="formMsg"></div>
+          <p class="contact-note">Prototype note: this form validates locally but isn't wired to an email backend yet, so nothing is actually sent — connect it to a mail service or API before relying on it.</p>
+        </form>
+        <div class="contact-side">
+          <div class="info-card">
+            <div class="i-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-6.1-7-11.4A7 7 0 0 1 12 3a7 7 0 0 1 7 6.6C19 14.9 12 21 12 21Z"/><circle cx="12" cy="10" r="2.3"/></svg></div>
+            <h3>Faisalabad, Pakistan</h3>
+            <p>Prototype maintained as part of an ongoing research build.</p>
+          </div>
+          <div class="info-card">
+            <div class="i-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></div>
+            <h3>Response time</h3>
+            <p>This is a demo form for now — see the note beside it about the missing backend.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="container footer-inner">
+    <span>© 2026 PPD-Adapt — screening prototype, Phase 6 build.</span>
+    <div class="footer-links">
+      <a href="#about" class="nav-link" data-target="about">About</a>
+      <a href="#resources" class="nav-link" data-target="resources">Resources</a>
+      <a href="#contact" class="nav-link" data-target="contact">Contact</a>
+      <a href="#" id="footPrivacyLink">Privacy</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ============ MODALS ============ -->
+<div class="modal-backdrop" id="privacyModal">
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="privacyModalTitle">
+    <button class="modal-close" data-close-modal><svg class="icon" viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg></button>
+    <h2 id="privacyModalTitle"><svg class="icon" viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 5-3.4 7.6-7 9-3.6-1.4-7-4-7-9V6l7-3Z"/></svg>Privacy</h2>
+    <p>Everything in this screening runs inside your browser. You can verify this yourself by opening your browser's developer tools and watching the Network tab during a full session — no requests go out.</p>
+    <ul>
+      <li><b>No server calls.</b> No fetch, no analytics, no third-party scripts are loaded once this page is open.</li>
+      <li><b>Nothing is saved after you close the tab.</b> This build keeps your session in memory only — refreshing or closing the page clears it.</li>
+      <li><b>No accounts, no cookies.</b> You don't sign in, and nothing identifying you is collected.</li>
+      <li><b>Safety check is local too.</b> The safety questions are scored on-device; if a concern is flagged, the guidance shown is generic and not sent anywhere.</li>
+    </ul>
+    <p style="font-size:12.5px;color:var(--ink-faint)">This is a screening prototype, not a diagnosis or a substitute for professional care.</p>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="helpModal">
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="helpModalTitle">
+    <button class="modal-close" data-close-modal><svg class="icon" viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg></button>
+    <h2 id="helpModalTitle"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.1 9.2a3 3 0 1 1 4.6 2.5c-1 .6-1.7 1.2-1.7 2.3"/><circle cx="12" cy="17" r=".9" fill="currentColor" stroke="none"/></svg>Help</h2>
+    <details open>
+      <summary>How does it choose which question to ask next?</summary>
+      <p>After every answer, the engine re-estimates your responses across five domains, then picks the next informative question. It adapts the session while asking at least one question in every domain, and stops early once each domain is estimated with enough confidence, with a 30-question maximum.</p>
+    </details>
+    <details>
+      <summary>Why did I see a safety question first?</summary>
+      <p>A short set of safety-related questions always runs before the main questionnaire. If any answer suggests risk of self-harm, or of harming your baby, a full-screen message with guidance is shown before anything else continues.</p>
+    </details>
+    <details>
+      <summary>What do I do with my results?</summary>
+      <p>Treat the summary as a starting point for a conversation with a doctor, midwife, or therapist — not as a diagnosis on its own.</p>
+    </details>
+    <details>
+      <summary>Is my language supported?</summary>
+      <p>Right now every item is shown in English. An Urdu toggle exists, but this build doesn't yet include a verified Urdu translation for these items, so it falls back to English rather than risk a machine translation of a clinical question.</p>
+    </details>
+  </div>
+</div>
+
+<div id="safetyOverlay" style="display:none"></div>
+<script src="escalation_content.js"></script>
+<script src="postpartum_module.js"></script>
+<script src="core_symptoms.js"></script>
+
+<script>
+// ============================================================
+// THEME
+// ============================================================
+(function(){
+  const root = document.documentElement;
+  const saved = localStorage.getItem('ppd-theme');
+  if (saved) root.setAttribute('data-theme', saved);
+  function sync(){
+    const t = root.getAttribute('data-theme') || 'light';
+    document.getElementById('themeLightBtn').classList.toggle('active', t === 'light');
+    document.getElementById('themeDarkBtn').classList.toggle('active', t === 'dark');
+  }
+  document.getElementById('themeLightBtn').onclick = () => { root.setAttribute('data-theme','light'); localStorage.setItem('ppd-theme','light'); sync(); };
+  document.getElementById('themeDarkBtn').onclick = () => { root.setAttribute('data-theme','dark'); localStorage.setItem('ppd-theme','dark'); sync(); };
+  sync();
+})();
+
+// ============================================================
+// NAV: mobile menu + smooth-scroll active link
+// ============================================================
+(function(){
+  const menu = document.getElementById('mobileMenu');
+  document.getElementById('hamburgerBtn').onclick = () => menu.classList.add('open');
+  document.getElementById('mobileMenuClose').onclick = () => menu.classList.remove('open');
+  menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => menu.classList.remove('open')));
+
+  const sectionIds = ['home','about','assessment-anchor','resources','contact'];
+  const links = document.querySelectorAll('.nav-link');
+  function setCurrent(id){
+    links.forEach(l => l.classList.toggle('current', l.dataset.target === id));
+  }
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) setCurrent(e.target.id); });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sectionIds.forEach(id => { const el = document.getElementById(id); if (el) observer.observe(el); });
+})();
+
+// ============================================================
+// MODALS
+// ============================================================
+(function(){
+  function openModal(id){ document.getElementById(id).classList.add('open'); document.body.style.overflow='hidden'; }
+  function closeAllModals(){
+    document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.remove('open'));
+    document.body.style.overflow='';
+  }
+  ['privacyBtn','mPrivacyBtn','footPrivacyBtn'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.onclick = () => { document.getElementById('mobileMenu').classList.remove('open'); openModal('privacyModal'); };
+  });
+  document.getElementById('footPrivacyLink').onclick = (e) => { e.preventDefault(); openModal('privacyModal'); };
+  ['helpBtn','mHelpBtn'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.onclick = () => { document.getElementById('mobileMenu').classList.remove('open'); openModal('helpModal'); };
+  });
+  document.getElementById('footInfoBtn').onclick = () => openModal('helpModal');
+  document.querySelectorAll('[data-close-modal]').forEach(b => b.onclick = closeAllModals);
+  document.querySelectorAll('.modal-backdrop').forEach(m => m.addEventListener('click', (e) => { if (e.target === m) closeAllModals(); }));
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeAllModals(); });
+})();
+
+// ============================================================
+// CONTACT FORM (client-side only — no backend in this build)
+// ============================================================
+(function(){
+  const form = document.getElementById('contactForm');
+  const msg = document.getElementById('formMsg');
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    const name = document.getElementById('cName').value.trim();
+    const email = document.getElementById('cEmail').value.trim();
+    const message = document.getElementById('cMsg').value.trim();
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if (!name || !emailOk || !message){
+      msg.textContent = 'Please fill in your name, a valid email, and a message.';
+      msg.className = 'form-msg show err';
+      return;
+    }
+    msg.textContent = 'Thanks, ' + name + ' — your message is validated. (No backend is connected in this prototype yet, so it hasn\'t actually been sent.)';
+    msg.className = 'form-msg show ok';
+    form.reset();
+  });
+})();
+
+// ============================================================
+// HERO / PANEL CTAs
+// ============================================================
+function showAssessmentOnly() {
+  const homePage = document.getElementById('homePage');
+  const assessment = document.getElementById('assessment');
+  if (homePage) homePage.classList.add('hidden');
+  assessment.classList.add('visible');
+  assessment.style.display = 'block';
+  startSession();
+  setTimeout(() => {
+    assessment.scrollIntoView({behavior:'smooth', block:'start'});
+  }, 80);
+}
+
+document.getElementById('heroBeginBtn').onclick = showAssessmentOnly;
+document.getElementById('panelStartBtn').onclick = showAssessmentOnly;
+document.getElementById('brandHomeLink').onclick = (event) => {
+  event.preventDefault();
+  document.getElementById('homePage').classList.remove('hidden');
+  document.getElementById('assessment').classList.remove('visible');
+  document.getElementById('assessment').style.display = 'none';
+  history.replaceState(null, '', '#home');
+  window.scrollTo({top: 0, behavior: 'smooth'});
+};
+
+// ============================================================
+// PHASE 6 — Adaptive engine. Ported unchanged from the project's
+// own Python engine (Phase 4 engine_lib.py) and stopping rule
+// (Phase 5, 5_1_5_3_stopping_rule.py). Same math, same item
+// parameters, same constants. Runs entirely client-side.
+// ============================================================
+
+// Safety items -- mirrors selection-engine/scripts/engine_lib.py SAFETY_CATEGORIES:
+// two categories, asked unconditionally before any adaptive item, the same positive-response
+// rule for every item (any response above the most-benign option, index 0, is positive), and
+// separate escalation routing per category.
+//  - PBQ_24 (infant-directed harm IDEATION) uses the PBQ's own 6-point scale (Brockington et al.
+//    2006; 'Never' = 0 points in its scoring key), so index 0 is the benign end like the others.
+//  - NHANES_DPQ090 (asked by the Python engine) is deliberately NOT asked here: its wording is
+//    identical to PHQ9_9 (v4, supervisor complaint 1).
+//  - PBQ_18 (the harm-DISCLOSURE item) is deliberately ABSENT: it is a disclosure of a past act,
+//    not a screening item (docs/PBQ18_disclosure_pathway.md).
+const SAFETY_ITEMS = [
+  {"id": "EPDS_10", "category": "maternal_self_harm", "label_en": "In the past 7 days, the thought of harming myself has occurred to me", "source": "EPDS item 10"},
+  {"id": "PHQ9_9", "category": "maternal_self_harm", "label_en": "Thoughts that you would be better off dead, or of hurting yourself in some way", "source": "PHQ-9 item 9"},
+  {"id": "PROMIS_EDDEP39", "category": "maternal_self_harm", "label_en": "I felt I had no reason for living", "source": "PROMIS Depression bank, EDDEP39"},
+  {"id": "PBQ_24", "category": "infant_directed_harm", "label_en": "I feel like hurting my baby", "source": "Postpartum Bonding Questionnaire (PBQ), Brockington et al. 2006, item 24", "frame_en": "In your recent experience —", "responseLabels": ["Never", "Rarely", "Sometimes", "Quite often", "Very often", "Always"]}
+];
+const ITEM_TO_SAFETY_CATEGORY = {};
+SAFETY_ITEMS.forEach(s => { ITEM_TO_SAFETY_CATEGORY[s.id] = s.category; });
+const SAFETY_POSITIVE_THRESHOLD = 0; // response > 0 counts as positive, for every item above
+// BEGIN EMBEDDED items_reference.json -- generated by webapp/verification/embed_items_into_app.py; edit the JSON, not this block
+const ITEMS = [{"n":1,"domain":"Stress","text_en":"I found myself getting upset by quite trivial things.","a1":2.3021,"a_s":1.2704,"d1":3.4494,"d2":0.0942,"d3":-2.2125},{"n":2,"domain":"Anxiety","text_en":"I was aware of dryness of my mouth.","a1":0.8847,"a_s":0.6133,"d1":0.7271,"d2":-0.8235,"d3":-1.9443},{"n":3,"domain":"Depression","text_en":"I couldn't seem to experience any positive feeling at all.","a1":1.9942,"a_s":1.5845,"d1":1.789,"d2":-1.233,"d3":-3.3066},{"n":4,"domain":"Anxiety","text_en":"I experienced breathing difficulty (eg, excessively rapid breathing, breathlessness in the absence of physical exertion).","a1":1.7118,"a_s":1.3128,"d1":0.386,"d2":-1.7889,"d3":-3.5355},{"n":5,"domain":"Depression","text_en":"I just couldn't seem to get going.","a1":1.841,"a_s":1.1764,"d1":2.4599,"d2":-0.2115,"d3":-2.0883},{"n":6,"domain":"Stress","text_en":"I tended to over-react to situations.","a1":1.7695,"a_s":0.8363,"d1":2.5276,"d2":-0.1029,"d3":-1.9677},{"n":7,"domain":"Anxiety","text_en":"I had a feeling of shakiness (eg, legs going to give way).","a1":2.0331,"a_s":1.9262,"d1":0.3812,"d2":-2.2934,"d3":-4.2843},{"n":8,"domain":"Stress","text_en":"I found it difficult to relax.","a1":2.0893,"a_s":-0.0513,"d1":2.3846,"d2":-0.3307,"d3":-2.2281},{"n":9,"domain":"Anxiety","text_en":"I found myself in situations that made me so anxious I was most relieved when they ended.","a1":1.8471,"a_s":0.2696,"d1":2.6353,"d2":0.2257,"d3":-1.5279},{"n":10,"domain":"Depression","text_en":"I felt that I had nothing to look forward to.","a1":2.1993,"a_s":2.359,"d1":2.387,"d2":-0.4571,"d3":-2.5997},{"n":11,"domain":"Stress","text_en":"I found myself getting upset rather easily.","a1":2.4879,"a_s":1.4277,"d1":4.0305,"d2":0.7701,"d3":-1.5708},{"n":12,"domain":"Stress","text_en":"I felt that I was using a lot of nervous energy.","a1":2.4767,"a_s":-0.5387,"d1":2.3635,"d2":-0.447,"d3":-2.7131},{"n":13,"domain":"Depression","text_en":"I felt sad and depressed.","a1":2.4779,"a_s":1.5885,"d1":3.8822,"d2":0.64,"d3":-1.5223},{"n":14,"domain":"Stress","text_en":"I found myself getting impatient when I was delayed in any way (eg, elevators, traffic lights, being kept waiting).","a1":1.1533,"a_s":0.6941,"d1":2.0422,"d2":0.0017,"d3":-1.392},{"n":15,"domain":"Anxiety","text_en":"I had a feeling of faintness.","a1":1.4386,"a_s":0.9228,"d1":0.0601,"d2":-1.9402,"d3":-3.511},{"n":16,"domain":"Depression","text_en":"I felt that I had lost interest in just about everything.","a1":1.8653,"a_s":1.6561,"d1":2.3832,"d2":-0.2177,"d3":-2.0903},{"n":17,"domain":"Depression","text_en":"I felt I wasn't worth much as a person.","a1":2.2191,"a_s":1.9454,"d1":2.8312,"d2":0.2993,"d3":-1.5862},{"n":18,"domain":"Stress","text_en":"I felt that I was rather touchy.","a1":1.3176,"a_s":0.694,"d1":1.948,"d2":-0.159,"d3":-1.772},{"n":19,"domain":"Anxiety","text_en":"I perspired noticeably (eg, hands sweaty) in the absence of high temperatures or physical exertion.","a1":1.0982,"a_s":0.8672,"d1":0.1923,"d2":-1.4186,"d3":-2.6208},{"n":20,"domain":"Anxiety","text_en":"I felt scared without any good reason.","a1":2.0374,"a_s":0.3632,"d1":1.5109,"d2":-0.6515,"d3":-2.3555},{"n":21,"domain":"Depression","text_en":"I felt that life wasn't worthwhile.","a1":2.6666,"a_s":2.799,"d1":2.1228,"d2":-0.8653,"d3":-3.1232},{"n":22,"domain":"Stress","text_en":"I found it hard to wind down.","a1":1.9057,"a_s":0.2213,"d1":1.9545,"d2":-0.6885,"d3":-2.5661},{"n":23,"domain":"Anxiety","text_en":"I had difficulty in swallowing.","a1":1.3695,"a_s":0.9786,"d1":-0.8319,"d2":-2.8003,"d3":-4.3376},{"n":24,"domain":"Depression","text_en":"I couldn't seem to get any enjoyment out of the things I did.","a1":1.8253,"a_s":1.4261,"d1":2.4128,"d2":-0.5082,"d3":-2.4948},{"n":25,"domain":"Anxiety","text_en":"I was aware of the action of my heart in the absence of physical exertion (eg, sense of heart rate increase, heart missing a beat).","a1":1.4184,"a_s":0.9807,"d1":1.0422,"d2":-0.9467,"d3":-2.5898},{"n":26,"domain":"Depression","text_en":"I felt down-hearted and blue.","a1":2.0806,"a_s":1.3142,"d1":3.1352,"d2":0.2649,"d3":-1.8193},{"n":27,"domain":"Stress","text_en":"I found that I was very irritable.","a1":2.0446,"a_s":1.1639,"d1":3.0468,"d2":0.0739,"d3":-1.9857},{"n":28,"domain":"Anxiety","text_en":"I felt I was close to panic.","a1":2.317,"a_s":0.5775,"d1":1.4743,"d2":-1.0898,"d3":-3.0822},{"n":29,"domain":"Stress","text_en":"I found it hard to calm down after something upset me.","a1":2.0992,"a_s":0.6584,"d1":2.942,"d2":0.1913,"d3":-1.7635},{"n":30,"domain":"Anxiety","text_en":"I feared that I would be \"thrown\" by some trivial but unfamiliar task.","a1":1.6097,"a_s":0.167,"d1":1.6992,"d2":-0.4083,"d3":-2.0496},{"n":31,"domain":"Depression","text_en":"I was unable to become enthusiastic about anything.","a1":1.706,"a_s":1.3919,"d1":2.1671,"d2":-0.6447,"d3":-2.5918},{"n":32,"domain":"Stress","text_en":"I found it difficult to tolerate interruptions to what I was doing.","a1":1.5447,"a_s":0.7673,"d1":2.2085,"d2":-0.3755,"d3":-2.2337},{"n":33,"domain":"Stress","text_en":"I was in a state of nervous tension.","a1":2.6998,"a_s":-0.6572,"d1":2.5672,"d2":-0.5495,"d3":-3.0165},{"n":34,"domain":"Depression","text_en":"I felt I was pretty worthless.","a1":2.3592,"a_s":2.0357,"d1":2.9455,"d2":0.1976,"d3":-1.7627},{"n":35,"domain":"Stress","text_en":"I was intolerant of anything that kept me from getting on with what I was doing.","a1":1.5368,"a_s":0.728,"d1":1.871,"d2":-0.7699,"d3":-2.6373},{"n":36,"domain":"Anxiety","text_en":"I felt terrified.","a1":2.066,"a_s":0.3228,"d1":1.385,"d2":-0.8638,"d3":-2.4982},{"n":37,"domain":"Depression","text_en":"I could see nothing in the future to be hopeful about.","a1":1.9584,"a_s":2.1311,"d1":1.9463,"d2":-0.7253,"d3":-2.5721},{"n":38,"domain":"Depression","text_en":"I felt that life was meaningless.","a1":2.5321,"a_s":2.7794,"d1":2.0944,"d2":-0.692,"d3":-2.7434},{"n":39,"domain":"Stress","text_en":"I found myself getting agitated.","a1":1.9329,"a_s":0.603,"d1":2.4752,"d2":-0.3779,"d3":-2.4008},{"n":40,"domain":"Anxiety","text_en":"I was worried about situations in which I might panic and make a fool of myself.","a1":1.7684,"a_s":0.2987,"d1":2.2946,"d2":0.2273,"d3":-1.3898},{"n":41,"domain":"Anxiety","text_en":"I experienced trembling (eg, in the hands).","a1":1.7273,"a_s":1.6704,"d1":0.4792,"d2":-1.9446,"d3":-3.669},{"n":42,"domain":"Depression","text_en":"I found it difficult to work up the initiative to do things.","a1":1.3715,"a_s":0.8257,"d1":2.6978,"d2":0.1931,"d3":-1.4492},{"n":43,"domain":"Fatigue","text_en":"How often did you run out of energy?","a1":0.0,"a_s":3.282,"d":[3.5408,-0.0441,-2.9906,-6.5505],"labels_en":["Never","Rarely","Sometimes","Often","Always"],"source":"PROMIS Fatigue, FATEXP18, real GRM fit (R/mirt, M2 CFI=0.987, RMSEA=0.058), N=1120 (Wave 1)"},{"n":44,"domain":"Fatigue","text_en":"How often did you feel tired?","a1":0.0,"a_s":3.103,"d":[4.5845,1.2065,-2.0628,-5.5163],"labels_en":["Never","Rarely","Sometimes","Often","Always"],"source":"PROMIS Fatigue, FATEXP20, real GRM fit (R/mirt, M2 CFI=0.987, RMSEA=0.058), N=1120 (Wave 1)"},{"n":45,"domain":"Fatigue","text_en":"How often did you experience extreme exhaustion?","a1":0.0,"a_s":3.8004,"d":[0.606,-2.1595,-4.6834,-7.7658],"labels_en":["Never","Rarely","Sometimes","Often","Always"],"source":"PROMIS Fatigue, FATEXP5, real GRM fit (R/mirt, M2 CFI=0.987, RMSEA=0.058), N=1120 (Wave 1)"},{"n":46,"domain":"Fatigue","text_en":"How often were you too tired to take a bath or shower?","a1":0.0,"a_s":2.6954,"d":[-0.5616,-1.9712,-4.1259,-6.4024],"labels_en":["Never","Rarely","Sometimes","Often","Always"],"source":"PROMIS Fatigue, FATIMP21, real GRM fit (R/mirt, M2 CFI=0.987, RMSEA=0.058), N=1120 (Wave 1)"},{"n":47,"domain":"Fatigue","text_en":"How often were you too tired to think clearly?","a1":0.0,"a_s":3.1858,"d":[0.8056,-1.6463,-4.3687,-7.107],"labels_en":["Never","Rarely","Sometimes","Often","Always"],"source":"PROMIS Fatigue, FATIMP30, real GRM fit (R/mirt, M2 CFI=0.987, RMSEA=0.058), N=1120 (Wave 1)"},{"n":48,"domain":"Fatigue","text_en":"How often did your fatigue limit your work at home?","a1":0.0,"a_s":4.4036,"d":[1.144,-1.6704,-4.8278,-8.4683],"labels_en":["Never","Rarely","Sometimes","Often","Always"],"source":"PROMIS Fatigue, FATIMP33, real GRM fit (R/mirt, M2 CFI=0.987, RMSEA=0.058), N=1120 (Wave 1)"},{"n":49,"domain":"Fatigue","text_en":"How much were you bothered by your fatigue on average?","a1":0.0,"a_s":4.6009,"d":[2.6656,-1.3701,-3.9478,-7.3044],"labels_en":["Not at all","A little bit","Somewhat","Quite a bit","Very much"],"source":"PROMIS Fatigue, FATEXP35, real GRM fit (R/mirt, M2 CFI=0.987, RMSEA=0.058), N=1120 (Wave 1)"},{"n":50,"domain":"Fatigue","text_en":"How run-down did you feel on average?","a1":0.0,"a_s":4.413,"d":[2.7993,-1.327,-3.7959,-7.592],"labels_en":["Not at all","A little bit","Somewhat","Quite a bit","Very much"],"source":"PROMIS Fatigue, FATEXP41, real GRM fit (R/mirt, M2 CFI=0.987, RMSEA=0.058), N=1120 (Wave 1)"},{"n":51,"domain":"Fatigue","text_en":"How often did you have to push yourself to get things done because of your fatigue?","a1":0.0,"a_s":4.4835,"d":[3.0386,-0.4571,-3.7444,-7.7179],"labels_en":["Not at all","A little bit","Somewhat","Quite a bit","Very much"],"source":"PROMIS Fatigue, FATIMP3, real GRM fit (R/mirt, M2 CFI=0.987, RMSEA=0.058), N=1120 (Wave 1)"},{"n":52,"domain":"Fatigue","text_en":"To what degree did your fatigue interfere with your physical functioning?","a1":0.0,"a_s":4.8564,"d":[1.3202,-2.1203,-4.8739,-8.6652],"labels_en":["Not at all","A little bit","Somewhat","Quite a bit","Very much"],"source":"PROMIS Fatigue, FATIMP49, real GRM fit (R/mirt, M2 CFI=0.987, RMSEA=0.058), N=1120 (Wave 1)"},{"n":53,"domain":"Fatigue","text_en":"I had trouble starting things because I was tired.","a1":0.0,"a_s":3.6625,"d":[1.4899,-1.5884,-3.9644,-6.8223],"labels_en":["Not at all","A little bit","Somewhat","Quite a bit","Very much"],"source":"PROMIS Fatigue, AN3, real GRM fit (R/mirt, M2 CFI=0.987, RMSEA=0.058), N=1120 (Wave 1)"},{"n":54,"domain":"Sleep","text_en":"It was easy for me to fall asleep.","a1":0.0,"a_s":1.9119,"d":[2.0412,0.0233,-1.934,-3.9461],"labels_en":["Never","Rarely","Sometimes","Often","Always"],"source":"PROMIS Sleep Disturbance, Sleep42, real GRM fit (R/mirt, 26-item full-bank, M2 CFI=0.942, RMSEA=0.084), N=1016 (Wave 2)","reverse":true},{"n":55,"domain":"Sleep","text_en":"My sleep was restful.","a1":0.0,"a_s":1.5621,"d":[2.5633,0.4156,-1.4755,-3.5804],"labels_en":["Not at all","A little bit","Somewhat","Quite a bit","Very much"],"source":"PROMIS Sleep Disturbance, Sleep105, real GRM fit (R/mirt, 26-item full-bank, M2 CFI=0.942, RMSEA=0.084), N=1016 (Wave 2)","reverse":true},{"n":56,"domain":"Sleep","text_en":"My sleep was deep.","a1":0.0,"a_s":1.5762,"d":[2.5242,0.4861,-1.2726,-3.2039],"labels_en":["Not at all","A little bit","Somewhat","Quite a bit","Very much"],"source":"PROMIS Sleep Disturbance, Sleep107, real GRM fit (R/mirt, 26-item full-bank, M2 CFI=0.942, RMSEA=0.084), N=1016 (Wave 2)","reverse":true},{"n":57,"domain":"Sleep","text_en":"I got enough sleep.","a1":0.0,"a_s":1.4547,"d":[2.7211,0.572,-1.3902,-3.5648],"labels_en":["Never","Rarely","Sometimes","Often","Always"],"source":"PROMIS Sleep Disturbance, Sleep110, real GRM fit (R/mirt, 26-item full-bank, M2 CFI=0.942, RMSEA=0.084), N=1016 (Wave 2)","reverse":true},{"n":58,"domain":"Sleep","text_en":"I was satisfied with my sleep.","a1":0.0,"a_s":1.6562,"d":[2.6439,0.6376,-1.1406,-2.892],"labels_en":["Not at all","A little bit","Somewhat","Quite a bit","Very much"],"source":"PROMIS Sleep Disturbance, Sleep115, real GRM fit (R/mirt, 26-item full-bank, M2 CFI=0.942, RMSEA=0.084), N=1016 (Wave 2)","reverse":true},{"n":59,"domain":"Sleep","text_en":"My sleep was refreshing.","a1":0.0,"a_s":1.4994,"d":[2.6092,0.71,-1.0872,-2.9615],"labels_en":["Not at all","A little bit","Somewhat","Quite a bit","Very much"],"source":"PROMIS Sleep Disturbance, Sleep116, real GRM fit (R/mirt, 26-item full-bank, M2 CFI=0.942, RMSEA=0.084), N=1016 (Wave 2)","reverse":true},{"n":60,"domain":"Sleep","text_en":"I had a problem with my sleep.","a1":0.0,"a_s":2.0258,"d":[2.1573,-0.2083,-1.7899,-3.6609],"labels_en":["Not at all","A little bit","Somewhat","Quite a bit","Very much"],"source":"PROMIS Sleep Disturbance, Sleep20, real GRM fit (R/mirt, 26-item full-bank, M2 CFI=0.942, RMSEA=0.084), N=1016 (Wave 2)"},{"n":61,"domain":"Sleep","text_en":"I had difficulty falling asleep.","a1":0.0,"a_s":2.5777,"d":[1.633,-0.6706,-2.3948,-4.0886],"labels_en":["Not at all","A little bit","Somewhat","Quite a bit","Very much"],"source":"PROMIS Sleep Disturbance, Sleep44, real GRM fit (R/mirt, 26-item full-bank, M2 CFI=0.942, RMSEA=0.084), N=1016 (Wave 2)"},{"n":62,"domain":"Sleep","text_en":"I laid in bed for hours waiting to fall asleep.","a1":0.0,"a_s":2.5317,"d":[1.3954,-0.7696,-3.0496,-4.9423],"labels_en":["Never","Rarely","Sometimes","Often","Always"],"source":"PROMIS Sleep Disturbance, Sleep45, real GRM fit (R/mirt, 26-item full-bank, M2 CFI=0.942, RMSEA=0.084), N=1016 (Wave 2)"},{"n":63,"domain":"Sleep","text_en":"I woke up too early and could not fall back asleep.","a1":0.0,"a_s":1.7476,"d":[2.0471,0.2042,-1.8241,-3.7325],"labels_en":["Never","Rarely","Sometimes","Often","Always"],"source":"PROMIS Sleep Disturbance, Sleep50, real GRM fit (R/mirt, 26-item full-bank, M2 CFI=0.942, RMSEA=0.084), N=1016 (Wave 2)"},{"n":64,"domain":"Sleep","text_en":"I felt physically tense at bedtime.","a1":0.0,"a_s":2.2546,"d":[0.6711,-1.0159,-2.9264,-4.6651],"labels_en":["Not at all","A little bit","Somewhat","Quite a bit","Very much"],"source":"PROMIS Sleep Disturbance, Sleep65, real GRM fit (R/mirt, 26-item full-bank, M2 CFI=0.942, RMSEA=0.084), N=1016 (Wave 2)"},{"n":65,"domain":"Sleep","text_en":"I worried about not being able to fall asleep.","a1":0.0,"a_s":2.8894,"d":[0.5314,-1.4336,-3.2435,-5.2328],"labels_en":["Not at all","A little bit","Somewhat","Quite a bit","Very much"],"source":"PROMIS Sleep Disturbance, Sleep67, real GRM fit (R/mirt, 26-item full-bank, M2 CFI=0.942, RMSEA=0.084), N=1016 (Wave 2)"},{"n":66,"domain":"Sleep","text_en":"I felt worried at bedtime.","a1":0.0,"a_s":2.478,"d":[0.7226,-1.2588,-2.9075,-4.8828],"labels_en":["Not at all","A little bit","Somewhat","Quite a bit","Very much"],"source":"PROMIS Sleep Disturbance, Sleep68, real GRM fit (R/mirt, 26-item full-bank, M2 CFI=0.942, RMSEA=0.084), N=1016 (Wave 2)"},{"n":67,"domain":"Sleep","text_en":"I had trouble stopping my thoughts at bedtime.","a1":0.0,"a_s":2.1694,"d":[1.8976,-0.4117,-1.9833,-3.4716],"labels_en":["Not at all","A little bit","Somewhat","Quite a bit","Very much"],"source":"PROMIS Sleep Disturbance, Sleep69, real GRM fit (R/mirt, 26-item full-bank, M2 CFI=0.942, RMSEA=0.084), N=1016 (Wave 2)"},{"n":68,"domain":"Sleep","text_en":"I felt sad at bedtime.","a1":0.0,"a_s":2.1652,"d":[0.0749,-1.3139,-2.8422,-4.267],"labels_en":["Not at all","A little bit","Somewhat","Quite a bit","Very much"],"source":"PROMIS Sleep Disturbance, Sleep70, real GRM fit (R/mirt, 26-item full-bank, M2 CFI=0.942, RMSEA=0.084), N=1016 (Wave 2)"},{"n":69,"domain":"Sleep","text_en":"I had trouble getting into a comfortable position to sleep.","a1":0.0,"a_s":2.1797,"d":[1.456,-0.6582,-2.3361,-3.8447],"labels_en":["Not at all","A little bit","Somewhat","Quite a bit","Very much"],"source":"PROMIS Sleep Disturbance, Sleep71, real GRM fit (R/mirt, 26-item full-bank, M2 CFI=0.942, RMSEA=0.084), N=1016 (Wave 2)"},{"n":70,"domain":"Sleep","text_en":"I tried hard to get to sleep.","a1":0.0,"a_s":3.2923,"d":[1.3678,-0.852,-2.9707,-4.9266],"labels_en":["Not at all","A little bit","Somewhat","Quite a bit","Very much"],"source":"PROMIS Sleep Disturbance, Sleep72, real GRM fit (R/mirt, 26-item full-bank, M2 CFI=0.942, RMSEA=0.084), N=1016 (Wave 2)"},{"n":71,"domain":"Sleep","text_en":"Stress disturbed my sleep.","a1":0.0,"a_s":2.9997,"d":[1.3675,-0.9178,-2.9412,-4.8999],"labels_en":["Not at all","A little bit","Somewhat","Quite a bit","Very much"],"source":"PROMIS Sleep Disturbance, Sleep78, real GRM fit (R/mirt, 26-item full-bank, M2 CFI=0.942, RMSEA=0.084), N=1016 (Wave 2)"},{"n":72,"domain":"Sleep","text_en":"I tossed and turned at night.","a1":0.0,"a_s":2.9007,"d":[2.0626,-0.6519,-2.8539,-4.72],"labels_en":["Not at all","A little bit","Somewhat","Quite a bit","Very much"],"source":"PROMIS Sleep Disturbance, Sleep86, real GRM fit (R/mirt, 26-item full-bank, M2 CFI=0.942, RMSEA=0.084), N=1016 (Wave 2)"},{"n":73,"domain":"Sleep","text_en":"I had trouble staying asleep.","a1":0.0,"a_s":2.656,"d":[2.4658,0.0693,-2.328,-4.461],"labels_en":["Never","Rarely","Sometimes","Often","Always"],"source":"PROMIS Sleep Disturbance, Sleep87, real GRM fit (R/mirt, 26-item full-bank, M2 CFI=0.942, RMSEA=0.084), N=1016 (Wave 2)"},{"n":74,"domain":"Sleep","text_en":"I had trouble sleeping.","a1":0.0,"a_s":3.5748,"d":[3.2574,0.1336,-3.0803,-5.4357],"labels_en":["Never","Rarely","Sometimes","Often","Always"],"source":"PROMIS Sleep Disturbance, Sleep90, real GRM fit (R/mirt, 26-item full-bank, M2 CFI=0.942, RMSEA=0.084), N=1016 (Wave 2)"},{"n":75,"domain":"Sleep","text_en":"I woke up and had trouble falling back to sleep.","a1":0.0,"a_s":2.5741,"d":[2.2359,0.1438,-2.3418,-4.6158],"labels_en":["Never","Rarely","Sometimes","Often","Always"],"source":"PROMIS Sleep Disturbance, Sleep92, real GRM fit (R/mirt, 26-item full-bank, M2 CFI=0.942, RMSEA=0.084), N=1016 (Wave 2)"},{"n":76,"domain":"Sleep","text_en":"I was afraid I would not get back to sleep after waking up.","a1":0.0,"a_s":2.376,"d":[0.9784,-0.7448,-2.5958,-4.3049],"labels_en":["Not at all","A little bit","Somewhat","Quite a bit","Very much"],"source":"PROMIS Sleep Disturbance, Sleep93, real GRM fit (R/mirt, 26-item full-bank, M2 CFI=0.942, RMSEA=0.084), N=1016 (Wave 2)"},{"n":77,"domain":"Sleep","text_en":"My sleep was light.","a1":0.0,"a_s":2.2676,"d":[1.7014,-0.2797,-2.2092,-3.9676],"labels_en":["Not at all","A little bit","Somewhat","Quite a bit","Very much"],"source":"PROMIS Sleep Disturbance, Sleep106, real GRM fit (R/mirt, 26-item full-bank, M2 CFI=0.942, RMSEA=0.084), N=1016 (Wave 2)"},{"n":78,"domain":"Sleep","text_en":"My sleep was restless.","a1":0.0,"a_s":3.1276,"d":[2.022,-0.8691,-2.9517,-5.0495],"labels_en":["Not at all","A little bit","Somewhat","Quite a bit","Very much"],"source":"PROMIS Sleep Disturbance, Sleep108, real GRM fit (R/mirt, 26-item full-bank, M2 CFI=0.942, RMSEA=0.084), N=1016 (Wave 2)"},{"n":79,"domain":"Sleep","text_en":"I felt lousy when I woke up.","a1":0.0,"a_s":2.1161,"d":[1.6159,-0.574,-2.3328,-4.1608],"labels_en":["Not at all","A little bit","Somewhat","Quite a bit","Very much"],"source":"PROMIS Sleep Disturbance, Sleep125, real GRM fit (R/mirt, 26-item full-bank, M2 CFI=0.942, RMSEA=0.084), N=1016 (Wave 2)"},{"n":80,"domain":"Sleep","text_en":"My sleep quality was...","a1":0.0,"a_s":5.6344,"d":[7.2008,1.0313,-3.823,-7.3985],"labels_en":["Very poor","Poor","Fair","Good","Very good"],"source":"PROMIS Sleep Disturbance, Sleep109, real GRM fit (R/mirt, 4-item SF4), N=1120 (Wave 1) -- not in Wave2 bank","reverse":true}].map(item => ({
+  ...item,
+  d1: item.d1 ?? item.d?.[0],
+  d2: item.d2 ?? item.d?.[1],
+  d3: item.d3 ?? item.d?.[2],
+  d4: item.d4 ?? item.d?.[3]
+}));
+// END EMBEDDED items_reference.json
+const DOMAINS = ["Depression", "Anxiety", "Stress", "Fatigue", "Sleep"];
+const MAX_ITEMS_PER_DOMAIN = 6;   // no more than this many questions in one domain; a domain still short of the confidence rule stays flagged uncertain
+// Content balancing: a domain is not finished until every group below has at least one asked item. Its FIRST item is always
+// free (highest information); from the second item on, while a group is unmet, the next item is chosen (still by highest
+// information) only from the unmet groups. Purpose: the core depressive symptoms (low mood, loss of interest, worthlessness,
+// concentration, agitation) are always asked, not only the most informative (hopelessness) items.
+const CONTENT_CONSTRAINTS = [
+  {"name": "Low mood", "domain": "Depression", "items": [13, 26]},
+  {"name": "Loss of interest", "domain": "Depression", "items": [3, 16, 24, 31]},
+  {"name": "Worthlessness / guilt", "domain": "Depression", "items": [17, 34]},
+  {"name": "Concentration", "domain": "Fatigue", "items": [47]},
+  {"name": "Psychomotor / agitation", "domain": "Stress", "items": [39]}
+];
+const MIN_COVERAGE = 1;   // every domain gets a seed item; the rest is driven by the confidence rule (6_v4 doc; supervisor request)
+const MAX_BUDGET = 30;
+const SD_CONFIDENT = 0.55;
+const RULE_OUT_MEAN = -0.5;
+const RULE_OUT_SD = 0.7;
+const FAST_RESPONSE_MS = 1200;
+
+const RESPONSE_LABELS = [
+  "Never applied to me",
+  "Applied to me somewhat, or some of the time",
+  "Applied to me a good deal, or a good part of the time",
+  "Applied to me very much, or most of the time",
+];
+const PROMIS_RESPONSE_LABELS = ["Never", "Rarely", "Sometimes", "Often", "Always"];
+
+const QUAD = [];
+for (let i = 0; i <= 40; i++) QUAD.push(-4 + (8 * i) / 40);
+const PRIOR_FLAT = (() => {
+  const w = QUAD.map(q => Math.exp(-0.5 * q * q));
+  const s = w.reduce((a, b) => a + b, 0);
+  return w.map(x => x / s);
+})();
+
+const ITEM_BY_N = {};
+ITEMS.forEach(it => { ITEM_BY_N[it.n] = it; });
+
+function grmProbs(thetaG, thetaS, item) {
+  const lin = item.a1 * thetaG + item.a_s * thetaS;
+  const sig = x => 1 / (1 + Math.exp(-x));
+  const p1 = sig(lin + item.d1), p2 = sig(lin + item.d2), p3 = sig(lin + item.d3);
+  if (item.d4 === undefined) return [1 - p1, p1 - p2, p2 - p3, p3].map(p => Math.min(Math.max(p, 1e-8), 1));
+  const p4 = sig(lin + item.d4);
+  return [1 - p1, p1 - p2, p2 - p3, p3 - p4, p4].map(p => Math.min(Math.max(p, 1e-8), 1));
+}
+function grmProbsVec(thetaGArr, thetaSArr, item) {
+  return thetaGArr.map((g, i) => grmProbs(g, thetaSArr[i], item));
+}
+function updateTheta1d(quad, priorW, thetaOther, item, response, target) {
+  const other = quad.map(() => thetaOther);
+  let probs;
+  if (target === "general") probs = grmProbsVec(quad, other, item);
+  else probs = grmProbsVec(other, quad, item);
+  const lik = probs.map(p => p[response]);
+  let post = priorW.map((w, i) => w * lik[i]);
+  const s = post.reduce((a, b) => a + b, 0);
+  post = post.map(x => x / s);
+  const mean = quad.reduce((a, q, i) => a + q * post[i], 0);
+  const varr = quad.reduce((a, q, i) => a + post[i] * (q - mean) ** 2, 0);
+  return { mean, sd: Math.sqrt(varr), post };
+}
+function specificInfo(item, thetaS) {
+  if (item.a_s === 0) return 0;
+  let info = 0;
+  [item.d1, item.d2, item.d3, item.d4].filter(dk => dk !== undefined).forEach(dk => {
+    const lin = item.a_s * thetaS + dk;
+    const p = 1 / (1 + Math.exp(-lin));
+    info += item.a_s ** 2 * p * (1 - p);
+  });
+  return info;
+}
+
+let state, uiLang = "en";
+
+function freshState() {
+  return {
+    theta: { G: 0, Depression: 0, Anxiety: 0, Stress: 0, Fatigue: 0, Sleep: 0 },
+    sds: { G: 1, Depression: 1, Anxiety: 1, Stress: 1, Fatigue: 1, Sleep: 1 },
+    priors: { G: PRIOR_FLAT.slice(), Depression: PRIOR_FLAT.slice(), Anxiety: PRIOR_FLAT.slice(), Stress: PRIOR_FLAT.slice(), Fatigue: PRIOR_FLAT.slice(), Sleep: PRIOR_FLAT.slice() },
+    quads: { G: QUAD, Depression: QUAD, Anxiety: QUAD, Stress: QUAD, Fatigue: QUAD, Sleep: QUAD },
+    perDomainCount: { Depression: 0, Anxiety: 0, Stress: 0, Fatigue: 0, Sleep: 0 },
+    asked: [],
+    remaining: new Set(ITEMS.map(i => i.n)),
+    safetyIdx: 0,
+    safetyPositive: false,
+    safetyAsked: [],          // {id, category, response, positive}
+    escalationCategories: new Set(),
+    fastResponseCount: 0,
+    itemShownAt: 0,
+    phase: "safety",
+  };
+}
+
+function domainResolved(mean, sd, minAsked) {
+  if (minAsked < MIN_COVERAGE) return [false, "below_min_coverage"];
+  if (sd <= SD_CONFIDENT) return [true, "confident_estimate"];
+  if (mean <= RULE_OUT_MEAN && sd <= RULE_OUT_SD) return [true, "ruled_out"];
+  return [false, "still_uncertain"];
+}
+// A domain is finished only when it has met the confidence rule AND every content group required for it has been asked.
+function unmetGroups(d) { return CONTENT_CONSTRAINTS.filter(g => g.domain === d && !state.asked.some(a => g.items.includes(a.n))); }
+function domainDone(d) { return unmetGroups(d).length === 0 && domainResolved(state.theta[d], state.sds[d], state.perDomainCount[d])[0]; }
+// Can we still ask something in this domain? An item must remain, and the domain must be under its cap (unmet groups override the cap).
+function askable(d) {
+  if (![...state.remaining].some(n => ITEM_BY_N[n].domain === d)) return false;
+  return unmetGroups(d).length > 0 || state.perDomainCount[d] < MAX_ITEMS_PER_DOMAIN;
+}
+function eligibleItems(d) {
+  const ug = unmetGroups(d);
+  const pool = (ug.length && state.perDomainCount[d] > 0) ? new Set(ug.flatMap(g => g.items)) : null;
+  return [...state.remaining].filter(n => ITEM_BY_N[n].domain === d && (!pool || pool.has(n)));
+}
+function shouldStop() {
+  if (state.asked.length >= MAX_BUDGET) {
+    const unresolved = DOMAINS.filter(d => !domainDone(d));
+    return { stop: true, reason: "max_budget_reached", unresolved };
+  }
+  const allResolved = DOMAINS.every(domainDone);
+  return { stop: allResolved, reason: allResolved ? "all_domains_resolved" : "continue", unresolved: [] };
+}
+function pickNextValueItem() {
+  const underCovered = DOMAINS.filter(d => state.perDomainCount[d] < MIN_COVERAGE);
+  let targetDomains;
+  if (underCovered.length) {
+    const lowestCount = Math.min(...underCovered.map(d => state.perDomainCount[d]));
+    targetDomains = underCovered.filter(d => state.perDomainCount[d] === lowestCount);
+  } else {
+    const unresolved = DOMAINS.filter(d => !domainDone(d) && askable(d));
+    if (!unresolved.length) return null;
+    const mostUncertain = Math.max(...unresolved.map(d => state.sds[d]));
+    targetDomains = unresolved.filter(d => Math.abs(state.sds[d] - mostUncertain) < 1e-9);
+  }
+  const allowed = new Set(targetDomains.flatMap(eligibleItems));
+  const candidates = [...state.remaining].filter(n => allowed.has(n));
+  if (!candidates.length) return null;
+  let best = null, bestVal = -1;
+  candidates.forEach(n => {
+    const item = ITEM_BY_N[n];
+    const val = specificInfo(item, state.theta[item.domain]);
+    if (val > bestVal) { best = n; bestVal = val; }
+  });
+  return best;
+}
+function recordResponse(item, response, wasFast) {
+  const domain = item.domain;
+  const g = updateTheta1d(state.quads.G, state.priors.G, state.theta[domain], item, response, "general");
+  state.priors.G = g.post;
+  const s = updateTheta1d(state.quads[domain], state.priors[domain], g.mean, item, response, "specific");
+  state.priors[domain] = s.post;
+  state.theta.G = g.mean; state.sds.G = g.sd;
+  state.theta[domain] = s.mean; state.sds[domain] = s.sd;
+  state.perDomainCount[domain]++;
+  state.asked.push({ n: item.n, domain, response, wasFast, text: item.text_en });
+  state.remaining.delete(item.n);
+  if (wasFast) state.fastResponseCount++;
+}
+
+const screenEl = document.getElementById("screen");
+const coverageBarEl = null;
+
+function updateCoverageBar() {
+  if (!coverageBarEl) return;
+  const bars = coverageBarEl.querySelectorAll(".bar > i");
+  const order = DOMAINS;
+  order.forEach((d, i) => {
+    const pct = Math.min(100, (state.perDomainCount[d] / MIN_COVERAGE) * 100);
+    bars[i].style.width = pct + "%";
+  });
+}
+
+function renderSafetyItem() {
+  const s = SAFETY_ITEMS[state.safetyIdx];
+  state.currentLabels = s.responseLabels || RESPONSE_LABELS;
+  screenEl.innerHTML = `
+    <div class="card">
+      <div class="question-inner">
+        ${s.frame_en ? `<p style="margin:0 0 8px;font-size:14px;color:var(--ink-soft)">${s.frame_en}</p>` : ""}
+        <h1 class="q">${s.label_en}</h1>
+        <div class="options" id="optsWrap"></div>
+      </div>
+    </div>
+  `;
+  renderOptions((response) => {
+    const positive = response > SAFETY_POSITIVE_THRESHOLD;
+    if (positive) {
+      state.safetyPositive = true;
+      state.escalationCategories.add(s.category);
+    }
+    state.safetyAsked.push({ id: s.id, category: s.category, response, positive });
+    state.safetyIdx++;
+    if (state.safetyIdx >= SAFETY_ITEMS.length) {
+      if (state.safetyPositive) { showSafetyEscalation(state.escalationCategories); return; }
+      state.phase = "value";
+      advance();
+    } else {
+      state.itemShownAt = performance.now();
+      renderSafetyItem();
+    }
+  });
+  state.itemShownAt = performance.now();
+}
+
+function renderOptions(onPick) {
+  const wrap = document.getElementById("optsWrap");
+  const labels = state.currentLabels || RESPONSE_LABELS;
+  labels.forEach((label, idx) => {
+    const btn = document.createElement("button");
+    btn.className = "opt";
+    btn.innerHTML = `<span class="option-circle"></span><span>${label}</span>`;
+    btn.onclick = () => {
+      const elapsed = performance.now() - state.itemShownAt;
+      document.querySelectorAll('.opt').forEach(el => el.classList.remove('selected'));
+      btn.classList.add('selected');
+      onPick(idx, elapsed < FAST_RESPONSE_MS);
+    };
+    wrap.appendChild(btn);
+  });
+}
+
+function renderValueItem(itemNum) {
+  const item = ITEM_BY_N[itemNum];
+  state.currentLabels = item.labels_en || RESPONSE_LABELS;
+  screenEl.innerHTML = `
+    <div class="card">
+      <div class="question-inner">
+        <h1 class="q">${item.text_en}</h1>
+        <div class="options" id="optsWrap"></div>
+      </div>
+    </div>
+  `;
+  renderOptions((picked, wasFast) => {
+    // Items stored reverse-coded in the calibration data (higher code = more
+    // disturbed, e.g. "My sleep was restful") are shown in natural order
+    // (Not at all .. Very much) and mapped back to the model's category here.
+    const response = item.reverse ? state.currentLabels.length - 1 - picked : picked;
+    recordResponse(item, response, wasFast);
+    updateCoverageBar();
+    advance();
+  });
+  state.itemShownAt = performance.now();
+}
+
+function setLang(l) { uiLang = l; advance(true); }
+
+// Escalation content is read from escalation_content.js, per category, and is never authored
+// here: what a person sees after a positive answer is clinical content that must come from a
+// named clinical supervisor (docs/escalation_content_REQUEST.md -- for infant-directed harm the
+// request says the wording "should not be adapted from #1 by an engineering session").
+// While a category's content is still UNSIGNED (the default) this shows a plain notice that
+// verified contacts are not available yet, with only the universal "emergency services / someone
+// you trust" pointer -- no invented phone numbers, no invented clinical wording.
+function escalationContentFor(category) {
+  const c = (typeof ESCALATION_CONTENT !== "undefined") ? ESCALATION_CONTENT[category] : null;
+  if (!c || c.status === ESCALATION_UNSIGNED_MARKER) return null;
+  return c;
+}
+
+function showSafetyEscalation(categories) {
+  const CATEGORY_DISPLAY_NAME = {
+    maternal_self_harm: "thoughts of self-harm",
+    infant_directed_harm: "thoughts of harming your baby",
+  };
+  const cats = categories ? Array.from(categories) : ["maternal_self_harm"];
+  const sections = cats.map(cat => {
+    const content = escalationContentFor(cat);
+    if (!content) {
+      const label = CATEGORY_DISPLAY_NAME[cat] || "this";
+      return `
+        <div class="safety-list" data-escalation-category="${cat}" data-escalation-source="fallback">
+          <div><b>Verified local support contacts for ${label} are not yet
+          available in this research demonstration.</b> If you are in
+          immediate danger, contact your local emergency services right
+          away, or talk to someone you trust — a partner, family member,
+          friend, or your doctor or midwife.</div>
+        </div>`;
+    }
+    return `
+      <div class="safety-list" data-escalation-category="${cat}" data-escalation-source="module">
+        <h3 style="margin:0 0 6px">${content.heading}</h3>
+        <div>${content.body}</div>
+        ${(content.contacts || []).map(c => `<div><b>${c.label}</b> — ${c.method}: ${c.value}</div>`).join("")}
+      </div>`;
+  }).join("");
+
+  document.getElementById("safetyOverlay").style.display = "flex";
+  document.getElementById("safetyOverlay").className = "safety-overlay";
+  document.getElementById("safetyOverlay").innerHTML = `
+    <div class="safety-box">
+      <h2>Please read this before continuing</h2>
+      <p>One of your answers suggests you may be having thoughts that need
+      support right now. You don't have to face this alone.</p>
+      ${sections}
+      <p style="font-size:13px">This screening is not a diagnosis. This screen
+      cannot be skipped without acknowledging it, by design.</p>
+      <button class="safety-continue" onclick="dismissSafety()">I've read this — continue</button>
+    </div>
+  `;
+}
+function dismissSafety() {
+  document.getElementById("safetyOverlay").style.display = "none";
+  state.phase = "value";
+  advance();
+}
+
+function advance(rerenderOnly) {
+  if (state.phase === "safety") { renderSafetyItem(); return; }
+  if (state.phase === "value") {
+    const check = shouldStop();
+    if (check.stop) { state.stopReason = check.reason; state.unresolved = check.unresolved; beginCore(); return; }
+    if (rerenderOnly && state.lastItem) { renderValueItem(state.lastItem); return; }
+    const next = pickNextValueItem();
+    // No askable item is left. Domains that never reached the confidence rule must still be flagged
+    // as uncertain (Phase 5 rule: unresolved domains are reported lower-confidence, never silently confident).
+    if (next === null) { state.stopReason = "items_exhausted"; state.unresolved = DOMAINS.filter(d => !domainDone(d)); beginCore(); return; }
+    state.lastItem = next;
+    renderValueItem(next);
+    return;
+  }
+  if (state.phase === "core") { renderCoreItem(state.core.current); return; }
+  if (state.phase === "postpartum") { renderPostpartumItem(state.pp.current); return; }
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// Core symptom question(s) -- unscored, facts only (core_symptoms.js). Runs after the adaptive phase.
+// ---------------------------------------------------------------------------------------------------------------
+function beginCore() {
+  if (typeof CORE_SYMPTOMS === "undefined") { state.core = null; beginPostpartum(); return; }
+  state.phase = "core";
+  state.core = { queue: CORE_SYMPTOMS.items.map(i => i.id), asked: [], answers: {}, current: null };
+  coreNext();
+}
+function coreNext() {
+  const c = state.core;
+  if (c.queue.length) { c.current = c.queue.shift(); renderCoreItem(c.current); return; }
+  beginPostpartum();
+}
+function renderCoreItem(id) {
+  const item = CORE_SYMPTOMS.items.find(i => i.id === id);
+  state.currentLabels = CORE_SYMPTOMS.labels;
+  screenEl.innerHTML = `
+    <div class="card">
+      <div class="question-inner">
+        <p style="margin:0 0 8px;font-size:14px;color:var(--ink-soft)">${CORE_SYMPTOMS.frame}</p>
+        <h1 class="q">${item.text}</h1>
+        <div class="options" id="optsWrap"></div>
+      </div>
+    </div>
+  `;
+  renderOptions((idx) => {
+    state.core.answers[id] = idx;
+    state.core.asked.push(id);
+    coreNext();
+  });
+  state.itemShownAt = performance.now();
+}
+function coreResultsHtml() {
+  if (!state.core || !state.core.asked.length) return "";
+  const rows = state.core.asked.map(id => {
+    const item = CORE_SYMPTOMS.items.find(i => i.id === id);
+    return `<div style="font-size:13px;color:var(--ink-soft);margin-top:4px">${item.criterion} (${item.source}): <b>${CORE_SYMPTOMS.labels[state.core.answers[id]]}</b></div>`;
+  }).join("");
+  return `<h2 style="font-family:var(--serif);font-weight:400;font-size:18px;margin:26px 0 6px">Other symptom asked</h2>${rows}`;
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// Postpartum module -- rule-based, NOT part of the adaptive engine (see postpartum_module.js for why).
+// Runs after the adaptive phase: screener items -> expansion of the subscales whose screener item is positive ->
+// scoring with the PUBLISHED PBQ key and cut-offs -> feedback rules combining the subscale flags with the engine's
+// Depression/Anxiety level. Reference implementation: selection-engine/scripts/postpartum_module.py (parity-tested).
+// ---------------------------------------------------------------------------------------------------------------
+const PP_UNSIGNED_MARKER = "UNSIGNED - DO NOT DEPLOY";
+function ppAvailable() { return typeof POSTPARTUM_MODULE !== "undefined"; }
+function ppItem(n) { return POSTPARTUM_MODULE.items.find(i => i.n === n); }
+
+function beginPostpartum() {
+  if (!ppAvailable()) { state.pp = null; state.phase = "done"; renderResults(); return; }
+  state.phase = "postpartum";
+  state.pp = { stage: "screener", queue: POSTPARTUM_MODULE.screener.items.map(s => s.n), asked: [], scores: {}, current: null,
+               positive: [], expanded: [], engineElevated: null, subscales: null, rulesFired: [] };
+  ppNext();
+}
+
+function ppNext() {
+  const pp = state.pp;
+  for (;;) {
+    if (pp.queue.length) { pp.current = pp.queue.shift(); renderPostpartumItem(pp.current); return; }
+    if (pp.stage === "screener") { ppExpandFromScreener(); pp.stage = "expanded"; continue; }
+    ppFinish();
+    return;
+  }
+}
+
+function ppExpandFromScreener() {
+  const M = POSTPARTUM_MODULE, scr = M.screener, pp = state.pp;
+  pp.engineElevated = scr.engine_domains.some(d => state.theta[d] >= scr.engine_elevated_theta);
+  const threshold = pp.engineElevated ? scr.positive_score_at_least_if_engine_elevated : scr.positive_score_at_least;
+  pp.positive = scr.items.filter(s => pp.scores[s.n] >= threshold).map(s => s.n);
+  const positiveSubscales = new Set(scr.items.filter(s => pp.scores[s.n] >= threshold).map(s => s.subscale));
+  pp.expanded = Object.keys(M.subscales).filter(k => positiveSubscales.has(k));
+  pp.expanded.forEach(k => M.subscales[k].items.forEach(n => { if (!pp.asked.includes(n) && !pp.queue.includes(n)) pp.queue.push(n); }));
+  ppCurtail();
+}
+
+// EXACT curtailment: an expanded subscale is asked only until its published cut-off is decided -- as soon as the running
+// total reaches the cut-off (high), or cannot reach it even if every remaining item scored 5 (not high). The high / not-high
+// result equals the one from asking every item; the exact score is only reported when all items were asked.
+function ppCurtail() {
+  const M = POSTPARTUM_MODULE, pp = state.pp;
+  pp.expanded.forEach(k => {
+    const sub = M.subscales[k];
+    const total = sub.items.filter(n => pp.asked.includes(n)).reduce((a, n) => a + pp.scores[n], 0);
+    const remaining = sub.items.filter(n => !pp.asked.includes(n));
+    if (remaining.length && (total >= sub.cutoff_high || total + 5 * remaining.length < sub.cutoff_high)) {
+      pp.queue = pp.queue.filter(n => !remaining.includes(n));
+    }
+  });
+}
+
+function renderPostpartumItem(n) {
+  const M = POSTPARTUM_MODULE, item = ppItem(n);
+  state.currentLabels = M.labels;
+  screenEl.innerHTML = `
+    <div class="card">
+      <div class="question-inner">
+        <p style="margin:0 0 8px;font-size:14px;color:var(--ink-soft)">In your recent experience —</p>
+        <h1 class="q">${item.text}</h1>
+        <div class="options" id="optsWrap"></div>
+      </div>
+    </div>
+  `;
+  renderOptions((idx) => {
+    // published key: positively worded items are reverse-scored
+    state.pp.scores[n] = item.positive_wording ? 5 - idx : idx;
+    state.pp.asked.push(n);
+    if (state.pp.stage !== "screener") ppCurtail();
+    ppNext();
+  });
+  state.itemShownAt = performance.now();
+}
+
+function ppCondition(c, ctx) {
+  if ("flag" in c) { const st = ctx.flags[c.flag]; return c.is === "high" ? st === "high" : c.is === "not_high" ? st !== "high" : st === c.is; }
+  if ("engine_elevated" in c) return ctx.engine_elevated === c.engine_elevated;
+  if ("any_flag_high" in c) return ctx.any_flag_high === c.any_flag_high;
+  if ("safety_category" in c) return ctx.safety_categories.has(c.safety_category);
+  throw new Error("unknown postpartum rule condition");
+}
+
+function ppFinish() {
+  const M = POSTPARTUM_MODULE, pp = state.pp, subs = {}, flags = {};
+  for (const [k, sub] of Object.entries(M.subscales)) {
+    if (pp.expanded.includes(k)) {
+      const total = sub.items.filter(n => pp.asked.includes(n)).reduce((a, n) => a + pp.scores[n], 0);
+      const complete = sub.items.every(n => pp.asked.includes(n));
+      subs[k] = { status: total >= sub.cutoff_high ? "high" : "scored_not_high", score: complete ? total : null, complete, cutoff_high: sub.cutoff_high };
+    } else {
+      subs[k] = { status: "screened_negative", score: null, complete: false, cutoff_high: sub.cutoff_high };
+    }
+    flags[k] = subs[k].status;
+  }
+  const ctx = { flags, engine_elevated: pp.engineElevated, any_flag_high: Object.values(flags).some(v => v === "high"), safety_categories: state.escalationCategories };
+  pp.subscales = subs;
+  pp.rulesFired = M.rules.filter(r => r.when.all.every(c => ppCondition(c, ctx))).map(r => r.id);
+  state.phase = "done";
+  renderResults();
+}
+
+// Results section for the module. Only FACTS are shown unless a clinician has supplied and signed the wording for a
+// fired rule (feedback slots in postpartum_module.js); no interpretation or advice is authored here.
+function postpartumResultsHtml() {
+  if (!ppAvailable()) return `<p style="font-size:12.5px;color:var(--ink-soft);margin-top:20px">The bonding and parenting questions could not be loaded in this session, so that part was not assessed.</p>`;
+  if (!state.pp || !state.pp.subscales) return "";
+  const M = POSTPARTUM_MODULE, pp = state.pp;
+  const rows = Object.entries(M.subscales).map(([k, sub]) => {
+    const r = pp.subscales[k];
+    const cut = `the published screening cut-off (${r.cutoff_high} or more)`;
+    const text = r.status === "screened_negative"
+      ? "Screening questions only \u2014 nothing flagged (not a full assessment of this area)"
+      : r.complete
+        ? `Score ${r.score} of ${sub.range[1]} \u2014 ${r.status === "high" ? "at or above" : "below"} ${cut}`
+        : `${r.status === "high" ? "At or above" : "Below"} ${cut} \u2014 questions stopped once this was certain, so there is no exact score`;
+    return `<div class="result-domain"><div class="rd-head"><span class="rd-name">${sub.name}</span></div><div style="font-size:13px;color:var(--ink-soft);margin-top:4px">${text}</div></div>`;
+  }).join("");
+  const fired = pp.rulesFired.map(id => M.rules.find(r => r.id === id));
+  const signed = fired.map(r => M.feedback[r.content_key]).filter(c => c && c.status !== PP_UNSIGNED_MARKER && c.heading && c.body);
+  const signedHtml = signed.map(c => `<div class="flag-box" style="margin-top:12px"><b>${c.heading}</b><br>${c.body}</div>`).join("");
+  const note = (fired.length && !signed.length)
+    ? `<p style="font-size:12.5px;color:var(--ink-soft);margin-top:12px">A clinician-approved explanation of these results has not been added to this research prototype yet.</p>` : "";
+  return `
+    <h2 style="font-family:var(--serif);font-weight:400;font-size:18px;margin:26px 0 6px">Bonding and parenting</h2>
+    <p style="font-size:12.5px;color:var(--ink-soft);margin:0 0 12px">Rule-based questions from a published questionnaire (not part of the adaptive scoring). Not a diagnosis.</p>
+    ${rows}${signedHtml}${note}`;
+}
+
+function levelLabel(mean) {
+  if (mean >= 0.7) return "Notably elevated";
+  if (mean >= 0.15) return "Somewhat elevated";
+  if (mean <= -0.5) return "Low";
+  return "Typical range";
+}
+function barColor(d) { return { Depression: "var(--teal)", Anxiety: "var(--lav)", Stress: "var(--blue)", Fatigue: "var(--amber)", Sleep: "var(--ink-faint)" }[d]; }
+function barWidth(mean) { return Math.round(Math.min(100, Math.max(4, (mean + 2) / 4 * 100))) + "%"; }
+
+function renderResults() {
+  const attributionHtml = DOMAINS.map(d => {
+    const askedInDomain = state.asked.filter(a => a.domain === d);
+    const mean = state.theta[d];
+    return `
+      <div class="result-domain">
+        <div class="rd-head">
+          <span class="rd-name">${d}</span>
+          <span class="rd-level">${levelLabel(mean)}</span>
+        </div>
+        <div class="result-bar"><i style="width:${barWidth(mean)};background:${barColor(d)}"></i></div>
+      </div>`;
+  }).join("");
+
+  const qualityFlag = state.fastResponseCount >= 3
+    ? `<div class="flag-box">This session is marked lower confidence because several answers were selected unusually quickly.</div>`
+    : "";
+  const budgetFlag = state.unresolved && state.unresolved.length
+    ? `<div class="flag-box">Some areas remained uncertain ${state.stopReason === "items_exhausted" ? "after the maximum number of questions in them was asked" : `after the ${MAX_BUDGET}-question limit`}: ${state.unresolved.join(", ")}.</div>`
+    : "";
+
+  screenEl.innerHTML = `
+    <div class="card">
+      <h1 class="q" style="font-size:22px">Session summary</h1>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:20px">
+        ${state.asked.length + (state.core ? state.core.asked.length : 0) + (state.pp ? state.pp.asked.length : 0)} questions completed
+      </p>
+      ${attributionHtml}
+      ${qualityFlag}
+      ${budgetFlag}
+      ${coreResultsHtml()}
+      ${postpartumResultsHtml()}
+    </div>
+  `;
+}
+
+function startSession() {
+  state = freshState();
+  advance();
+}
+
+// Offline support: register the service worker only where browsers allow it (http(s)/localhost).
+// Under file:// there is nothing to register and the app already runs from the one file.
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.protocol === 'http:')) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js').catch(err => console.warn('Offline support unavailable:', err.message));
+  });
+}
+</script>
+</body>
+</html>
