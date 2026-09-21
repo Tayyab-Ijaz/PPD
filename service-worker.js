@@ -7,13 +7,14 @@
 //
 // Bump CACHE_VERSION whenever any precached file changes -- otherwise installed copies keep
 // serving the old files. (webapp/parity/pwa_offline_test.mjs fails if a precached file is missing.)
-const CACHE_VERSION = 'ppd-adapt-v12';
+const CACHE_VERSION = 'ppd-adapt-v15';
 const PRECACHE_URLS = [
   './',
   './index.html',
   './escalation_content.js',
   './postpartum_module.js',
   './core_symptoms.js',
+  './severity_bands.js',
   './manifest.json',
   './icon.svg',
   './assets/icon-192.png',

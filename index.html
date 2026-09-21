@@ -300,9 +300,29 @@
   .result-bar>i{display:block;height:100%;}
   .attribution{margin-top:8px;font-size:12.5px;color:var(--ink-soft);}
   .attribution b{color:var(--ink);font-weight:600;}
+  /* Back / start over controls under the question card */
+  .nav-row{display:flex;justify-content:space-between;align-items:center;gap:10px 14px;flex-wrap:wrap;margin:14px 4px 0;}
+  .nav-row[hidden]{display:none;}
+  .nav-btn{background:none;border:1px solid var(--line);color:var(--ink-soft);border-radius:999px;padding:9px 16px;font-size:13.5px;font-family:var(--sans);cursor:pointer;}
+  .nav-btn:hover,.nav-btn:focus-visible{background:var(--bg-soft);color:var(--ink);border-color:var(--ink-faint);outline:none;}
+  .nav-btn.warn{color:var(--amber);border-color:color-mix(in srgb,var(--amber) 40%,var(--line));}
+  .nav-confirm{font-size:13px;color:var(--ink-soft);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  /* Depressive symptom level card */
+  .sev-name{font-family:var(--serif);font-size:30px;line-height:1.1;color:var(--ink);}
+  .sev-name small{display:block;font-family:var(--sans);font-size:12.5px;color:var(--ink-soft);margin-top:6px;letter-spacing:0;}
+  .sev-bar{display:flex;height:16px;border-radius:8px;overflow:hidden;margin:16px 0 8px;background:var(--line);gap:2px;}
+  .sev-bar i{display:block;height:100%;min-width:3px;}
+  .sev-legend{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;font-size:12.5px;color:var(--ink-soft);line-height:1.4;}
+  .sev-legend b{display:block;color:var(--ink);font-size:15px;font-weight:600;}
+  .sev-legend span.on{color:var(--ink);font-weight:600;}
+  .sf-title{font-family:var(--serif);font-size:15.5px;color:var(--ink);margin:0 0 4px;}
+  .sf-row{display:flex;justify-content:space-between;align-items:baseline;gap:6px 16px;flex-wrap:wrap;padding:9px 0;border-top:1px solid var(--line);font-size:13.5px;color:var(--ink-soft);line-height:1.45;}
+  .sf-row:first-of-type{border-top:none;}
+  .sf-row b{font-weight:600;color:var(--ink);}
+  .sev-low{background:#1E8F6F;} .sev-mild{background:#D9B23A;} .sev-moderate{background:#E07B2E;} .sev-severe{background:#B8433A;}
   /* Results: sections, cards, pills, score scale */
   .res-section{margin-top:32px;}
-  .res-section h2{font-family:var(--serif);font-weight:400;font-size:19px;margin:0 0 4px;}
+  .res-section h2{font-family:var(--serif);font-weight:400;font-size:19px;margin:0 0 4px;color:var(--ink);}
   .res-sub{font-size:12.5px;color:var(--ink-soft);line-height:1.6;margin:0 0 14px;max-width:62ch;}
   .res-card{border:1px solid var(--line);border-radius:var(--r-md);background:var(--bg-soft);padding:14px 16px;margin-bottom:10px;}
   .res-card .rc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px 14px;flex-wrap:wrap;}
@@ -526,7 +546,7 @@
   <!-- ============ ASSESSMENT (hidden until start) ============ -->
   <section class="section assessment-section" id="assessment">
     <div class="container">
-      <div class="quiz-wrap"><div id="screen"></div></div>
+      <div class="quiz-wrap"><div id="screen"></div><div id="navRow" class="nav-row" hidden></div></div>
     </div>
   </section>
 
@@ -678,6 +698,7 @@
 <script src="escalation_content.js"></script>
 <script src="postpartum_module.js"></script>
 <script src="core_symptoms.js"></script>
+<script src="severity_bands.js"></script>
 
 <script>
 // ============================================================
@@ -900,6 +921,8 @@ function specificInfo(item, thetaS) {
 }
 
 let state, uiLang = "en";
+let undoStack = [];
+const CAN_UNDO = typeof structuredClone === "function";
 
 function freshState() {
   return {
@@ -1018,6 +1041,7 @@ function renderSafetyItem() {
     state.safetyAsked.push({ id: s.id, category: s.category, response, positive });
     state.safetyIdx++;
     if (state.safetyIdx >= SAFETY_ITEMS.length) {
+      undoStack.length = 0;   // the safety answers are final once the block is complete; Back never crosses into it
       if (state.safetyPositive) { showSafetyEscalation(state.escalationCategories); return; }
       state.phase = "value";
       advance();
@@ -1038,6 +1062,7 @@ function renderOptions(onPick) {
     btn.innerHTML = `<span class="option-circle"></span><span>${label}</span>`;
     btn.onclick = () => {
       const elapsed = performance.now() - state.itemShownAt;
+      if (CAN_UNDO) undoStack.push({ snap: structuredClone(state), picked: idx });   // exact copy of everything before this answer
       document.querySelectorAll('.opt').forEach(el => el.classList.remove('selected'));
       btn.classList.add('selected');
       onPick(idx, elapsed < FAST_RESPONSE_MS);
@@ -1147,6 +1172,100 @@ function advance(rerenderOnly) {
   }
   if (state.phase === "core") { renderCoreItem(state.core.current); return; }
   if (state.phase === "postpartum") { renderPostpartumItem(state.pp.current); return; }
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// Depressive symptom level (severity_bands.js): which published DASS-42 Depression band would the FULL 14-item scale have given?
+// P(band) = sum over the (general, Depression) posterior grid of P(full-scale sum in band | grid point); the sum's exact distribution
+// comes from the 14 items' response probabilities (Lord-Wingersky recursion). The table P(band | grid point) does not depend on the
+// session, so it is built once. The shown level is the MEDIAN band. Reference: selection-engine/scripts/severity_band.py.
+// ---------------------------------------------------------------------------------------------------------------
+function sevAvailable() { return typeof SEVERITY_BANDS !== "undefined"; }
+let SEV_TABLE = null;
+function buildSeverityTable() {
+  const cfg = SEVERITY_BANDS, nb = cfg.bands.length, n = QUAD.length;
+  const dom = ITEMS.filter(i => i.domain === cfg.domain);
+  const table = new Float64Array(n * n * nb);
+  for (let gi = 0; gi < n; gi++) {
+    for (let si = 0; si < n; si++) {
+      let dist = [1];
+      for (const it of dom) {
+        const p = grmProbs(QUAD[gi], QUAD[si], it);
+        const nd = new Array(dist.length + p.length - 1).fill(0);
+        for (let k = 0; k < dist.length; k++) for (let c = 0; c < p.length; c++) nd[k + c] += dist[k] * p[c];
+        dist = nd;
+      }
+      for (let b = 0; b < nb; b++) {
+        let t = 0;
+        for (let v = cfg.bands[b].min; v <= Math.min(cfg.bands[b].max, dist.length - 1); v++) t += dist[v];
+        table[(gi * n + si) * nb + b] = t;
+      }
+    }
+  }
+  return table;
+}
+function severityResult() {
+  const cfg = SEVERITY_BANDS, nb = cfg.bands.length, n = QUAD.length;
+  if (!SEV_TABLE) SEV_TABLE = buildSeverityTable();
+  const wG = state.priors.G, wS = state.priors[cfg.domain];
+  let probs = new Array(nb).fill(0);
+  for (let gi = 0; gi < n; gi++) for (let si = 0; si < n; si++) {
+    const w = wG[gi] * wS[si];
+    for (let b = 0; b < nb; b++) probs[b] += w * SEV_TABLE[(gi * n + si) * nb + b];
+  }
+  const tot = probs.reduce((a, b) => a + b, 0);
+  probs = probs.map(x => x / tot);
+  let cum = 0, top = nb - 1;
+  for (let b = 0; b < nb; b++) { cum += probs[b]; if (cum >= 0.5) { top = b; break; } }
+  return { probs, rank: cfg.bands[top].key, rank_index: top, borderline: probs[top] < cfg.borderline_below_probability };
+}
+function severityCardHtml() {
+  if (!sevAvailable()) return `<div class="res-section"><p class="res-sub">The PPD screening classification could not be loaded in this session.</p></div>`;
+  const cfg = SEVERITY_BANDS, r = severityResult();
+  const pct = p => Math.round(p * 100);
+  const band = cfg.bands[r.rank_index];
+  let near = "";
+  if (r.borderline) {
+    const lo = r.rank_index > 0 ? r.probs[r.rank_index - 1] : -1, hi = r.rank_index < cfg.bands.length - 1 ? r.probs[r.rank_index + 1] : -1;
+    near = cfg.bands[hi > lo ? r.rank_index + 1 : r.rank_index - 1].label;
+  }
+  const bar = cfg.bands.map((b, i) => `<i class="sev-${b.key}" style="width:${(100 * r.probs[i]).toFixed(1)}%"></i>`).join("");
+  const legend = cfg.bands.map((b, i) => `<div class="${i === r.rank_index ? "on" : ""}"><b>${pct(r.probs[i])}%</b><span class="${i === r.rank_index ? "on" : ""}">${b.label}</span></div>`).join("");
+  const edges = cfg.bands.map(b => `${b.label} ${b.max >= 42 ? b.min + " and above" : b.min + " to " + b.max}`).join(", ");
+  return `<div class="res-section">
+    <h2>PPD screening classification (research)</h2>
+    <p class="res-sub">Based on general depression questions plus postpartum findings. Not validated for postpartum depression. Not a diagnosis.</p>
+    <div class="res-card">
+      <div class="rc-top"><span class="sev-name">${band.label}<small>depressive symptom level, compared with the published DASS-42 bands</small></span>${r.borderline ? `<span class="pill high">Borderline, close to ${near}</span>` : `<span class="pill low">Clear result</span>`}</div>
+      <div class="sev-bar" role="img" aria-label="Chance of each level">${bar}</div>
+      <div class="sev-legend">${legend}</div>
+      <div class="rc-meta">The percentages are the estimated chance that the full 14 question depression scale would have placed the answers in each level. Level edges on that scale (score 0 to 42): ${edges}.</div>
+    </div>
+    ${supportingFindingsHtml()}
+  </div>`;
+}
+
+// The other screening results of this session, listed as they stand. They do not change the level above (no weights: there is no
+// postpartum data to set any); a clinician reads them together with it. Facts only.
+function supportingFindingsHtml() {
+  const rows = [];
+  if (state.pp && state.pp.subscales) {
+    const M = POSTPARTUM_MODULE, high = Object.entries(state.pp.subscales).filter(([k, r]) => r.status === "high").map(([k]) => M.subscales[k].name);
+    rows.push(["Bonding and parenting", high.length ? `<b>${high.length} of ${Object.keys(M.subscales).length}</b> areas at or above the published cut-off: ${high.join("; ")}` : "No area at or above the published cut-off"]);
+  }
+  const above = DOMAINS.filter(d => d !== "Depression" && levelLabel(state.theta[d]).indexOf("elevated") >= 0).map(d => `${d} (${levelLabel(state.theta[d]).toLowerCase()})`);
+  rows.push(["Anxiety, stress, fatigue, sleep", above.length ? `Above the typical range on their own: <b>${above.join(", ")}</b>` : "None above the typical range"]);
+  if (state.core && state.core.asked.length) {
+    state.core.asked.forEach(id => {
+      const item = CORE_SYMPTOMS.items.find(i => i.id === id);
+      rows.push([item.criterion, `<b>${CORE_SYMPTOMS.labels[state.core.answers[id]]}</b>`]);
+    });
+  }
+  rows.push(["Safety questions", state.escalationCategories && state.escalationCategories.size ? "<b>A safety message was shown</b> in this session" : "No safety message was shown"]);
+  return `<div class="res-card"><div class="sf-title">Supporting findings</div>
+      <div class="rc-meta" style="margin:0 0 4px">Listed as they stand. They do not change the level above.</div>
+      ${rows.map(([k, v]) => `<div class="sf-row"><span>${k}</span><span>${v}</span></div>`).join("")}
+    </div>`;
 }
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -1372,6 +1491,8 @@ function renderResults() {
       <p style="font-size:13px;color:var(--ink-soft);margin-bottom:20px">
         ${state.asked.length + (state.core ? state.core.asked.length : 0) + (state.pp ? state.pp.asked.length : 0)} questions completed
       </p>
+      ${severityCardHtml()}
+      <div class="res-section"><h2>Areas on their own</h2><p class="res-sub">Each bar shows one area after taking general distress into account, so a bar can look typical while the overall level above is higher.</p></div>
       ${attributionHtml}
       ${qualityFlag}
       ${budgetFlag}
@@ -1382,9 +1503,52 @@ function renderResults() {
 }
 
 function startSession() {
+  undoStack = [];
   state = freshState();
   advance();
 }
+
+// ---------------------------------------------------------------------------------------------------------------
+// Correcting a mistaken click: "Previous question" restores the EXACT state from before the last answer (a saved copy, not a
+// recalculation), so an answer that is corrected leaves no trace: the questions asked afterwards, the estimates and the module
+// results are exactly those of a session in which the mistake was never made (webapp/verification/test_back_correction_browser.mjs).
+// The safety block is the exception: once it is complete its answers are final. "Start over" clears everything.
+// Nothing is stored; the history lives only in this tab.
+// ---------------------------------------------------------------------------------------------------------------
+function renderCurrent() {
+  if (state.phase === "safety") { renderSafetyItem(); return; }
+  if (state.phase === "value") { renderValueItem(state.lastItem); return; }
+  if (state.phase === "core") { renderCoreItem(state.core.current); return; }
+  if (state.phase === "postpartum") { renderPostpartumItem(state.pp.current); return; }
+}
+function goBack() {
+  if (!undoStack.length) return;
+  const e = undoStack.pop();
+  state = e.snap;
+  renderCurrent();
+  const opts = document.querySelectorAll("#optsWrap .opt");
+  if (opts[e.picked]) opts[e.picked].classList.add("selected");     // show the earlier answer so the change is deliberate
+  state.itemShownAt = performance.now() - 2 * FAST_RESPONSE_MS;      // a correction is not a rushed answer
+}
+const navRow = document.getElementById("navRow");
+let confirmingRestart = false;
+function refreshNav() {
+  const active = state && ["safety", "value", "core", "postpartum", "done"].includes(state.phase) && screenEl.children.length;
+  if (!active) { navRow.hidden = true; navRow.innerHTML = ""; return; }
+  const back = undoStack.length
+    ? `<button type="button" class="nav-btn" id="navBack">${state.phase === "done" ? "Change my last answer" : "Previous question"}</button>` : "<span></span>";
+  const restart = confirmingRestart
+    ? `<span class="nav-confirm">Start over and clear your answers? <button type="button" class="nav-btn warn" id="navRestartYes">Yes, start over</button><button type="button" class="nav-btn" id="navRestartNo">Cancel</button></span>`
+    : `<button type="button" class="nav-btn" id="navRestart">Start over</button>`;
+  navRow.innerHTML = back + restart;
+  navRow.hidden = false;
+  const on = (id, fn) => { const el = document.getElementById(id); if (el) el.onclick = fn; };
+  on("navBack", () => { confirmingRestart = false; goBack(); });
+  on("navRestart", () => { confirmingRestart = true; refreshNav(); });
+  on("navRestartNo", () => { confirmingRestart = false; refreshNav(); });
+  on("navRestartYes", () => { confirmingRestart = false; document.getElementById("safetyOverlay").style.display = "none"; startSession(); });
+}
+if (CAN_UNDO) new MutationObserver(() => { confirmingRestart = false; refreshNav(); }).observe(screenEl, { childList: true });
 
 // Offline support: register the service worker only where browsers allow it (http(s)/localhost).
 // Under file:// there is nothing to register and the app already runs from the one file.

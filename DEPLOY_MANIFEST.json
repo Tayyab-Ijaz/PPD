@@ -1,6 +1,6 @@
 {
   "built": "2026-09-21",
-  "source_commit": "9e548b9",
+  "source_commit": "d54341e",
   "webapp_app_has_uncommitted_changes": true,
   "files": {
     "assets/hero.png": "e095742bafe30f45d2bee4b861da3e82931b3c90ce1d8889dc081dd8ac3b9610",
@@ -11,9 +11,10 @@
     "core_symptoms.js": "5a3873ff33bc634d6b9edfc5fb60719cca959b4a283875b024e7e2f196a1865e",
     "escalation_content.js": "773a719aa6c787e207b160fd2bf642de960196a837c8d9643c86ce39d2b339fd",
     "icon.svg": "0d32fcdb0292ecce6872353bd333d2c5798150be6a44e8058274e0a4faf3077a",
-    "index.html": "2a9e3f047deb118a51956b642780edfa67b30dec8ced2304d2db972166a9a7c0",
+    "index.html": "7ac3be04be4b2055d3ba2ada05581f30124a974d8a364baf6932d86de8979dfc",
     "manifest.json": "6e66b1fc8daa369c198c3c5918f6e7854fb57d94a4d830c63f1b99bf30cb42c8",
     "postpartum_module.js": "8e5667689014aee6c4d94ec49e764cefa1ec6be98de921911a652efedf668bc1",
-    "service-worker.js": "37d2c9098605ee7fbac8c012163d3d040f34ce65b47bbe9986ee7125c38c1745"
+    "service-worker.js": "7162501c679daea38e9b843a7e2d2cac7dd2a7b1faa6c11155a09f965031798e",
+    "severity_bands.js": "5bffbb92912704ea2105bb8a8faa6d9b4892c705859676519209a02bb9d6327e"
   }
 }
