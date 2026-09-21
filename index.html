@@ -9,7 +9,7 @@
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1E8F6F">
 <link rel="icon" type="image/png" href="assets/logo.png?v=2">
-<title>PPD-Adapt — Adaptive Mental Health Screening</title>
+<title>PPD-Adapt: Adaptive Mental Health Screening</title>
 <style>
   :root{
     --bg:#F6F8F5;
@@ -301,6 +301,28 @@
   .result-bar>i{display:block;height:100%;}
   .attribution{margin-top:8px;font-size:12.5px;color:var(--ink-soft);}
   .attribution b{color:var(--ink);font-weight:600;}
+  /* Results: sections, cards, pills, score scale */
+  .res-section{margin-top:32px;}
+  .res-section h2{font-family:var(--serif);font-weight:400;font-size:19px;margin:0 0 4px;}
+  .res-sub{font-size:12.5px;color:var(--ink-soft);line-height:1.6;margin:0 0 14px;max-width:62ch;}
+  .res-card{border:1px solid var(--line);border-radius:var(--r-md);background:var(--bg-soft);padding:14px 16px;margin-bottom:10px;}
+  .res-card .rc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px 14px;flex-wrap:wrap;}
+  .res-card .rc-name{font-family:var(--serif);font-size:15.5px;line-height:1.35;flex:1 1 210px;color:var(--ink);}
+  .res-card .rc-score{font-size:22px;font-family:var(--serif);color:var(--ink);margin-top:10px;line-height:1.1;}
+  .res-card .rc-score span{font-size:13px;color:var(--ink-soft);font-family:var(--sans);}
+  .res-card .rc-meta{font-size:12.5px;color:var(--ink-soft);margin-top:8px;line-height:1.55;}
+  .pill{display:inline-block;font-size:12px;font-weight:600;line-height:1.2;padding:6px 11px;border-radius:999px;border:1px solid transparent;}
+  .pill.high{background:var(--amber-pale);color:var(--amber);border-color:color-mix(in srgb,var(--amber) 30%,var(--line));}
+  .pill.low{background:var(--teal-pale);color:var(--teal-deep);border-color:color-mix(in srgb,var(--teal) 25%,var(--line));}
+  .pill.neutral{background:var(--card);color:var(--ink-soft);border-color:var(--line);}
+  .scale{position:relative;height:7px;border-radius:4px;background:var(--line);margin:12px 0 6px;}
+  .scale i{display:block;height:100%;border-radius:4px;}
+  .scale b{position:absolute;top:-4px;width:2px;height:15px;background:var(--ink);opacity:.55;border-radius:1px;}
+  .scale-cap{display:flex;justify-content:space-between;font-size:11.5px;color:var(--ink-faint);}
+  html[data-theme="dark"] .res-card{background:#1d261e;border-color:#344237;}
+  html[data-theme="dark"] .pill.high{background:#312610;color:#e7bd69;}
+  html[data-theme="dark"] .pill.low{background:#16332a;color:#7fd3b3;}
+  html[data-theme="dark"] .pill.neutral{background:#171d16;}
   .flag-box{background:var(--amber-pale);border:1px solid color-mix(in srgb,var(--amber) 30%,var(--line));border-radius:10px;padding:12px 14px;font-size:12.5px;color:var(--amber);margin-top:16px;}
   .disclaimer{font-size:11.5px;color:var(--ink-soft);margin-top:22px;padding-top:16px;border-top:1px solid var(--line);line-height:1.6;}
 
@@ -416,7 +438,7 @@
       <div class="hero-inner">
         <div>
           <h1>A clearer picture of<br>how you're <em>feeling</em>.</h1>
-          <p class="hero-lede">PPD-Adapt asks a few thoughtful questions about your mood, anxiety, and stress — and adapts to your answers as you go. It's quick, private, and designed to support your well-being.</p>
+          <p class="hero-lede">PPD-Adapt asks a few thoughtful questions about your mood, anxiety, and stress, and adapts to your answers as you go. It's quick, private, and designed to support your well-being.</p>
           <div class="cta-row">
             <button class="btn-primary" id="heroBeginBtn">
               <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M10 8l6 4-6 4Z" fill="currentColor" stroke="none"/></svg>
@@ -440,7 +462,7 @@
         <div class="panel-head">
           <div>
             <h2><svg class="icon" viewBox="0 0 24 24"><path d="M12 3l1.2 3.6L17 8l-3.8 1.4L12 13l-1.2-3.6L7 8l3.8-1.4L12 3Z"/><path d="M19 14l.5 1.6L21 16l-1.5.4L19 18l-.5-1.6L17 16l1.5-.4L19 14Z"/></svg>Before we begin</h2>
-            <p>This build is an adaptive questionnaire covering Depression, Anxiety, Stress, Fatigue, and Sleep. It asks focused questions one at a time based on your previous answers. Your answers stay on this device the whole session — nothing is sent anywhere.</p>
+            <p>This build is an adaptive questionnaire covering Depression, Anxiety, Stress, Fatigue, and Sleep. It asks focused questions one at a time based on your previous answers. Your answers stay on this device the whole session. Nothing is sent anywhere.</p>
           </div>
           <div class="privacy-badge">
             <svg class="icon" viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 5-3.4 7.6-7 9-3.6-1.4-7-4-7-9V6l7-3Z"/></svg>
@@ -488,7 +510,7 @@
           </button>
           <button class="foot-item" id="footInfoBtn">
             <span class="foot-icon info"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><circle cx="12" cy="8" r=".9" fill="currentColor" stroke="none"/></svg></span>
-            <span><b>Screening tool, not a diagnosis</b><span>This tool helps identify what to talk through with a clinician — it does not replace one.</span></span>
+            <span><b>Screening tool, not a diagnosis</b><span>This tool helps identify what to talk through with a clinician. It does not replace one.</span></span>
           </button>
         </div>
 
@@ -513,12 +535,12 @@
   <section class="section info-section" id="about">
     <div class="container">
       <h2><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>About this build</h2>
-      <p class="lede">PPD-Adapt is an adaptive screening prototype. Instead of a fixed, one-size-fits-all questionnaire, it uses an item-response-theory engine to pick the single most informative next question based on everything you've answered so far — which is why most sessions end well before every item has been asked.</p>
+      <p class="lede">PPD-Adapt is an adaptive screening prototype. Instead of a fixed, one-size-fits-all questionnaire, it uses an item-response-theory engine to pick the single most informative next question based on everything you've answered so far, which is why most sessions end well before every item has been asked.</p>
       <div class="info-grid">
         <div class="info-card">
           <div class="i-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M4 19l6-12 4 8 3-5 3 9"/></svg></div>
           <h3>Adaptive by design</h3>
-          <p>Each answer updates a running estimate across five domains, and the engine stops early once it has enough information — or reaches the session limit.</p>
+          <p>Each answer updates a running estimate across five domains, and the engine stops early once it has enough information, or reaches the session limit.</p>
         </div>
         <div class="info-card">
           <div class="i-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 5-3.4 7.6-7 9-3.6-1.4-7-4-7-9V6l7-3Z"/></svg></div>
@@ -538,7 +560,7 @@
   <section class="section info-section" id="resources">
     <div class="container">
       <h2><svg class="icon" viewBox="0 0 24 24"><path d="M4 19.5V6a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v13.5M4 19.5A2 2 0 0 0 6 21h13"/></svg>Resources</h2>
-      <p class="lede">If a session flags a safety concern, this app shows an in-context message before anything else. Beyond that moment, here's general guidance — this build doesn't yet look up region-specific hotline numbers automatically.</p>
+      <p class="lede">If a session flags a safety concern, this app shows an in-context message before anything else. Beyond that moment, here's general guidance. This build doesn't yet look up region-specific hotline numbers automatically.</p>
       <div class="info-grid">
         <div class="info-card">
           <div class="i-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-6.1-7-11.4A7 7 0 0 1 12 3a7 7 0 0 1 7 6.6C19 14.9 12 21 12 21Z"/></svg></div>
@@ -563,7 +585,7 @@
   <section class="section info-section" id="contact">
     <div class="container">
       <h2><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>Contact</h2>
-      <p class="lede">Questions about this build, the engine, or the underlying item bank — send a note below.</p>
+      <p class="lede">Questions about this build, the engine, or the underlying item bank. Send a note below.</p>
       <div class="contact-grid">
         <form class="contact-form" id="contactForm" novalidate>
           <div>
@@ -583,7 +605,7 @@
             Send message
           </button>
           <div class="form-msg" id="formMsg"></div>
-          <p class="contact-note">Prototype note: this form validates locally but isn't wired to an email backend yet, so nothing is actually sent — connect it to a mail service or API before relying on it.</p>
+          <p class="contact-note">Prototype note: this form validates locally but isn't wired to an email backend yet, so nothing is actually sent. Connect it to a mail service or API before relying on it.</p>
         </form>
         <div class="contact-side">
           <div class="info-card">
@@ -594,7 +616,7 @@
           <div class="info-card">
             <div class="i-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></div>
             <h3>Response time</h3>
-            <p>This is a demo form for now — see the note beside it about the missing backend.</p>
+            <p>This is a demo form for now. See the note beside it about the missing backend.</p>
           </div>
         </div>
       </div>
@@ -604,7 +626,7 @@
 
 <footer class="site">
   <div class="container footer-inner">
-    <span>© 2026 PPD-Adapt — screening prototype, Phase 6 build.</span>
+    <span>© 2026 PPD-Adapt. Screening prototype, Phase 6 build.</span>
     <div class="footer-links">
       <a href="#about" class="nav-link" data-target="about">About</a>
       <a href="#resources" class="nav-link" data-target="resources">Resources</a>
@@ -619,10 +641,10 @@
   <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="privacyModalTitle">
     <button class="modal-close" data-close-modal><svg class="icon" viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg></button>
     <h2 id="privacyModalTitle"><svg class="icon" viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 5-3.4 7.6-7 9-3.6-1.4-7-4-7-9V6l7-3Z"/></svg>Privacy</h2>
-    <p>Everything in this screening runs inside your browser. You can verify this yourself by opening your browser's developer tools and watching the Network tab during a full session — no requests go out.</p>
+    <p>Everything in this screening runs inside your browser. You can verify this yourself by opening your browser's developer tools and watching the Network tab during a full session. No requests go out.</p>
     <ul>
       <li><b>No server calls.</b> No fetch, no analytics, no third-party scripts are loaded once this page is open.</li>
-      <li><b>Nothing is saved after you close the tab.</b> This build keeps your session in memory only — refreshing or closing the page clears it.</li>
+      <li><b>Nothing is saved after you close the tab.</b> This build keeps your session in memory only. Refreshing or closing the page clears it.</li>
       <li><b>No accounts, no cookies.</b> You don't sign in, and nothing identifying you is collected.</li>
       <li><b>Safety check is local too.</b> The safety questions are scored on-device; if a concern is flagged, the guidance shown is generic and not sent anywhere.</li>
     </ul>
@@ -644,7 +666,7 @@
     </details>
     <details>
       <summary>What do I do with my results?</summary>
-      <p>Treat the summary as a starting point for a conversation with a doctor, midwife, or therapist — not as a diagnosis on its own.</p>
+      <p>Treat the summary as a starting point for a conversation with a doctor, midwife, or therapist, not as a diagnosis on its own.</p>
     </details>
     <details>
       <summary>Is my language supported?</summary>
@@ -721,7 +743,7 @@
 })();
 
 // ============================================================
-// CONTACT FORM (client-side only — no backend in this build)
+// CONTACT FORM (client-side only, no backend in this build)
 // ============================================================
 (function(){
   const form = document.getElementById('contactForm');
@@ -737,7 +759,7 @@
       msg.className = 'form-msg show err';
       return;
     }
-    msg.textContent = 'Thanks, ' + name + ' — your message is validated. (No backend is connected in this prototype yet, so it hasn\'t actually been sent.)';
+    msg.textContent = 'Thanks, ' + name + '. Your message is validated. (No backend is connected in this prototype yet, so it hasn\'t actually been sent.)';
     msg.className = 'form-msg show ok';
     form.reset();
   });
@@ -790,7 +812,7 @@ const SAFETY_ITEMS = [
   {"id": "EPDS_10", "category": "maternal_self_harm", "label_en": "In the past 7 days, the thought of harming myself has occurred to me", "source": "EPDS item 10"},
   {"id": "PHQ9_9", "category": "maternal_self_harm", "label_en": "Thoughts that you would be better off dead, or of hurting yourself in some way", "source": "PHQ-9 item 9"},
   {"id": "PROMIS_EDDEP39", "category": "maternal_self_harm", "label_en": "I felt I had no reason for living", "source": "PROMIS Depression bank, EDDEP39"},
-  {"id": "PBQ_24", "category": "infant_directed_harm", "label_en": "I feel like hurting my baby", "source": "Postpartum Bonding Questionnaire (PBQ), Brockington et al. 2006, item 24", "frame_en": "In your recent experience —", "responseLabels": ["Never", "Rarely", "Sometimes", "Quite often", "Very often", "Always"]}
+  {"id": "PBQ_24", "category": "infant_directed_harm", "label_en": "I feel like hurting my baby", "source": "Postpartum Bonding Questionnaire (PBQ), Brockington et al. 2006, item 24", "frame_en": "In your recent experience:", "responseLabels": ["Never", "Rarely", "Sometimes", "Quite often", "Very often", "Always"]}
 ];
 const ITEM_TO_SAFETY_CATEGORY = {};
 SAFETY_ITEMS.forEach(s => { ITEM_TO_SAFETY_CATEGORY[s.id] = s.category; });
@@ -1078,7 +1100,7 @@ function showSafetyEscalation(categories) {
           <div><b>Verified local support contacts for ${label} are not yet
           available in this research demonstration.</b> If you are in
           immediate danger, contact your local emergency services right
-          away, or talk to someone you trust — a partner, family member,
+          away, or talk to someone you trust, such as a partner, family member,
           friend, or your doctor or midwife.</div>
         </div>`;
     }
@@ -1086,7 +1108,7 @@ function showSafetyEscalation(categories) {
       <div class="safety-list" data-escalation-category="${cat}" data-escalation-source="module">
         <h3 style="margin:0 0 6px">${content.heading}</h3>
         <div>${content.body}</div>
-        ${(content.contacts || []).map(c => `<div><b>${c.label}</b> — ${c.method}: ${c.value}</div>`).join("")}
+        ${(content.contacts || []).map(c => `<div><b>${c.label}</b>, ${c.method}: ${c.value}</div>`).join("")}
       </div>`;
   }).join("");
 
@@ -1100,7 +1122,7 @@ function showSafetyEscalation(categories) {
       ${sections}
       <p style="font-size:13px">This screening is not a diagnosis. This screen
       cannot be skipped without acknowledging it, by design.</p>
-      <button class="safety-continue" onclick="dismissSafety()">I've read this — continue</button>
+      <button class="safety-continue" onclick="dismissSafety()">I've read this, continue</button>
     </div>
   `;
 }
@@ -1163,11 +1185,14 @@ function renderCoreItem(id) {
 }
 function coreResultsHtml() {
   if (!state.core || !state.core.asked.length) return "";
-  const rows = state.core.asked.map(id => {
+  const cards = state.core.asked.map(id => {
     const item = CORE_SYMPTOMS.items.find(i => i.id === id);
-    return `<div style="font-size:13px;color:var(--ink-soft);margin-top:4px">${item.criterion} (${item.source}): <b>${CORE_SYMPTOMS.labels[state.core.answers[id]]}</b></div>`;
+    return `<div class="res-card">
+      <div class="rc-top"><span class="rc-name">${item.criterion}</span><span class="pill neutral">${CORE_SYMPTOMS.labels[state.core.answers[id]]}</span></div>
+      <div class="rc-meta">${item.source}. One extra question, shown as answered. It is not scored or interpreted.</div>
+    </div>`;
   }).join("");
-  return `<h2 style="font-family:var(--serif);font-weight:400;font-size:18px;margin:26px 0 6px">Other symptom asked</h2>${rows}`;
+  return `<div class="res-section"><h2>Other symptom asked</h2>${cards}</div>`;
 }
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -1230,7 +1255,7 @@ function renderPostpartumItem(n) {
   screenEl.innerHTML = `
     <div class="card">
       <div class="question-inner">
-        <p style="margin:0 0 8px;font-size:14px;color:var(--ink-soft)">In your recent experience —</p>
+        <p style="margin:0 0 8px;font-size:14px;color:var(--ink-soft)">In your recent experience:</p>
         <h1 class="q">${item.text}</h1>
         <div class="options" id="optsWrap"></div>
       </div>
@@ -1276,28 +1301,40 @@ function ppFinish() {
 // Results section for the module. Only FACTS are shown unless a clinician has supplied and signed the wording for a
 // fired rule (feedback slots in postpartum_module.js); no interpretation or advice is authored here.
 function postpartumResultsHtml() {
-  if (!ppAvailable()) return `<p style="font-size:12.5px;color:var(--ink-soft);margin-top:20px">The bonding and parenting questions could not be loaded in this session, so that part was not assessed.</p>`;
+  if (!ppAvailable()) return `<div class="res-section"><p class="res-sub">The bonding and parenting questions could not be loaded in this session, so that part was not assessed.</p></div>`;
   if (!state.pp || !state.pp.subscales) return "";
   const M = POSTPARTUM_MODULE, pp = state.pp;
-  const rows = Object.entries(M.subscales).map(([k, sub]) => {
+  const cards = Object.entries(M.subscales).map(([k, sub]) => {
     const r = pp.subscales[k];
-    const cut = `the published screening cut-off (${r.cutoff_high} or more)`;
-    const text = r.status === "screened_negative"
-      ? "Screening questions only \u2014 nothing flagged (not a full assessment of this area)"
-      : r.complete
-        ? `Score ${r.score} of ${sub.range[1]} \u2014 ${r.status === "high" ? "at or above" : "below"} ${cut}`
-        : `${r.status === "high" ? "At or above" : "Below"} ${cut} \u2014 questions stopped once this was certain, so there is no exact score`;
-    return `<div class="result-domain"><div class="rd-head"><span class="rd-name">${sub.name}</span></div><div style="font-size:13px;color:var(--ink-soft);margin-top:4px">${text}</div></div>`;
+    const cutTxt = `Published cut-off: ${r.cutoff_high} or more.`;
+    let pill, body;
+    if (r.status === "screened_negative") {
+      pill = `<span class="pill neutral">Screening questions only</span>`;
+      body = `<div class="rc-meta">Nothing flagged. This was a short check, not a full assessment of this area. ${cutTxt}</div>`;
+    } else {
+      const high = r.status === "high";
+      pill = `<span class="pill ${high ? "high" : "low"}">${high ? "At or above the published cut-off" : "Below the published cut-off"}</span>`;
+      if (r.complete) {
+        const max = sub.range[1];
+        body = `<div class="rc-score">Score ${r.score} <span>of ${max}</span></div>
+          <div class="scale"><i style="width:${(100 * r.score / max).toFixed(1)}%;background:${high ? "var(--amber)" : "var(--teal)"}"></i><b style="left:${(100 * r.cutoff_high / max).toFixed(1)}%"></b></div>
+          <div class="scale-cap"><span>0</span><span>${max}</span></div>
+          <div class="rc-meta">${cutTxt} The tick on the bar marks it.</div>`;
+      } else {
+        body = `<div class="rc-meta">Questions stopped once the result was certain, so there is no exact score. ${cutTxt}</div>`;
+      }
+    }
+    return `<div class="res-card"><div class="rc-top"><span class="rc-name">${sub.name}</span>${pill}</div>${body}</div>`;
   }).join("");
   const fired = pp.rulesFired.map(id => M.rules.find(r => r.id === id));
   const signed = fired.map(r => M.feedback[r.content_key]).filter(c => c && c.status !== PP_UNSIGNED_MARKER && c.heading && c.body);
   const signedHtml = signed.map(c => `<div class="flag-box" style="margin-top:12px"><b>${c.heading}</b><br>${c.body}</div>`).join("");
   const note = (fired.length && !signed.length)
-    ? `<p style="font-size:12.5px;color:var(--ink-soft);margin-top:12px">A clinician-approved explanation of these results has not been added to this research prototype yet.</p>` : "";
-  return `
-    <h2 style="font-family:var(--serif);font-weight:400;font-size:18px;margin:26px 0 6px">Bonding and parenting</h2>
-    <p style="font-size:12.5px;color:var(--ink-soft);margin:0 0 12px">Rule-based questions from a published questionnaire (not part of the adaptive scoring). Not a diagnosis.</p>
-    ${rows}${signedHtml}${note}`;
+    ? `<p class="res-sub" style="margin-top:12px">A clinician-approved explanation of these results has not been added to this research prototype yet.</p>` : "";
+  return `<div class="res-section">
+    <h2>Bonding and parenting</h2>
+    <p class="res-sub">Rule-based questions from a published questionnaire. They are separate from the adaptive scores above. Not a diagnosis.</p>
+    ${cards}${signedHtml}${note}</div>`;
 }
 
 function levelLabel(mean) {

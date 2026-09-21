@@ -7,7 +7,7 @@
 //
 // Bump CACHE_VERSION whenever any precached file changes -- otherwise installed copies keep
 // serving the old files. (webapp/parity/pwa_offline_test.mjs fails if a precached file is missing.)
-const CACHE_VERSION = 'ppd-adapt-v9';
+const CACHE_VERSION = 'ppd-adapt-v10';
 const PRECACHE_URLS = [
   './',
   './index.html',
