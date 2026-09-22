@@ -319,6 +319,10 @@
   .sf-row{display:flex;justify-content:space-between;align-items:baseline;gap:6px 16px;flex-wrap:wrap;padding:9px 0;border-top:1px solid var(--line);font-size:13.5px;color:var(--ink-soft);line-height:1.45;}
   .sf-row:first-of-type{border-top:none;}
   .sf-row b{font-weight:600;color:var(--ink);}
+  .fn-ref{font-size:10px;vertical-align:super;color:var(--teal-deep);margin-left:1px;cursor:default;}
+  .res-footnotes{margin-top:28px;padding-top:14px;border-top:1px solid var(--line);}
+  .res-footnotes p{font-size:11.5px;color:var(--ink-faint);line-height:1.6;margin:0 0 6px;}
+  .res-footnotes sup{margin-right:3px;color:var(--teal-deep);}
   .sev-low{background:#1E8F6F;} .sev-mild{background:#D9B23A;} .sev-moderate{background:#E07B2E;} .sev-severe{background:#B8433A;}
   /* Results: sections, cards, pills, score scale */
   .res-section{margin-top:32px;}
@@ -1204,6 +1208,9 @@ function buildSeverityTable() {
   }
   return table;
 }
+function areasSectionHtml() {
+  return `<div class="res-section"><h2>Areas on their own${footnote("Each bar shows one area after taking general distress into account, so a bar can look typical while the score above is higher.")}</h2></div>`;
+}
 function severityResult() {
   const cfg = SEVERITY_BANDS, nb = cfg.bands.length, n = QUAD.length;
   if (!SEV_TABLE) SEV_TABLE = buildSeverityTable();
@@ -1219,8 +1226,19 @@ function severityResult() {
   for (let b = 0; b < nb; b++) { cum += probs[b]; if (cum >= 0.5) { top = b; break; } }
   return { probs, rank: cfg.bands[top].key, rank_index: top, borderline: probs[top] < cfg.borderline_below_probability };
 }
+const FOOTNOTE_MARKS = ["*", "\u2020", "\u2021", "\u00a7", "\u2016"];
+function footnote(text) {
+  if (!state.resultsFootnotes) state.resultsFootnotes = [];
+  let i = state.resultsFootnotes.indexOf(text);
+  if (i === -1) { state.resultsFootnotes.push(text); i = state.resultsFootnotes.length - 1; }
+  return `<sup class="fn-ref">${FOOTNOTE_MARKS[i] || "*"}</sup>`;
+}
+function footnotesHtml() {
+  if (!state.resultsFootnotes || !state.resultsFootnotes.length) return "";
+  return `<div class="res-footnotes">${state.resultsFootnotes.map((t, i) => `<p><sup>${FOOTNOTE_MARKS[i] || "*"}</sup>${t}</p>`).join("")}</div>`;
+}
 function severityCardHtml() {
-  if (!sevAvailable()) return `<div class="res-section"><p class="res-sub">The PPD screening classification could not be loaded in this session.</p></div>`;
+  if (!sevAvailable()) return `<div class="res-section"><p class="res-sub">The aggregate PPD score could not be loaded in this session.</p></div>`;
   const cfg = SEVERITY_BANDS, r = severityResult();
   const pct = p => Math.round(p * 100);
   const band = cfg.bands[r.rank_index];
@@ -1233,10 +1251,9 @@ function severityCardHtml() {
   const legend = cfg.bands.map((b, i) => `<div class="${i === r.rank_index ? "on" : ""}"><b>${pct(r.probs[i])}%</b><span class="${i === r.rank_index ? "on" : ""}">${b.label}</span></div>`).join("");
   const edges = cfg.bands.map(b => `${b.label} ${b.max >= 42 ? b.min + " and above" : b.min + " to " + b.max}`).join(", ");
   return `<div class="res-section">
-    <h2>PPD screening classification (research)</h2>
-    <p class="res-sub">Based on general depression questions plus postpartum findings. Not validated for postpartum depression. Not a diagnosis.</p>
+    <h2>Aggregate PPD Score (Research)${footnote("This score is based on general depression questions, not on items about the time after birth specifically. The postpartum and other findings below are listed separately and do not change it. Not validated for postpartum depression. Not a diagnosis.")}</h2>
     <div class="res-card">
-      <div class="rc-top"><span class="sev-name">${band.label}<small>depressive symptom level, compared with the published DASS-42 bands</small></span>${r.borderline ? `<span class="pill high">Borderline, close to ${near}</span>` : `<span class="pill low">Clear result</span>`}</div>
+      <div class="rc-top"><span class="sev-name">${band.label}<small>compared with the published DASS-42 depression bands</small></span>${r.borderline ? `<span class="pill high">Borderline, close to ${near}</span>` : `<span class="pill low">Clear result</span>`}</div>
       <div class="sev-bar" role="img" aria-label="Chance of each level">${bar}</div>
       <div class="sev-legend">${legend}</div>
       <div class="rc-meta">The percentages are the estimated chance that the full 14 question depression scale would have placed the answers in each level. Level edges on that scale (score 0 to 42): ${edges}.</div>
@@ -1450,8 +1467,7 @@ function postpartumResultsHtml() {
   const note = (fired.length && !signed.length)
     ? `<p class="res-sub" style="margin-top:12px">A clinician-approved explanation of these results has not been added to this research prototype yet.</p>` : "";
   return `<div class="res-section">
-    <h2>Bonding and parenting</h2>
-    <p class="res-sub">Rule-based questions from a published questionnaire. They are separate from the adaptive scores above. Not a diagnosis.</p>
+    <h2>Bonding and parenting${footnote("Rule-based questions from a published questionnaire. They are separate from the adaptive scores above. Not a diagnosis.")}</h2>
     ${cards}${signedHtml}${note}</div>`;
 }
 
@@ -1465,6 +1481,7 @@ function barColor(d) { return { Depression: "var(--teal)", Anxiety: "var(--lav)"
 function barWidth(mean) { return Math.round(Math.min(100, Math.max(4, (mean + 2) / 4 * 100))) + "%"; }
 
 function renderResults() {
+  state.resultsFootnotes = [];
   const attributionHtml = DOMAINS.map(d => {
     const askedInDomain = state.asked.filter(a => a.domain === d);
     const mean = state.theta[d];
@@ -1492,12 +1509,13 @@ function renderResults() {
         ${state.asked.length + (state.core ? state.core.asked.length : 0) + (state.pp ? state.pp.asked.length : 0)} questions completed
       </p>
       ${severityCardHtml()}
-      <div class="res-section"><h2>Areas on their own</h2><p class="res-sub">Each bar shows one area after taking general distress into account, so a bar can look typical while the overall level above is higher.</p></div>
+      ${areasSectionHtml()}
       ${attributionHtml}
       ${qualityFlag}
       ${budgetFlag}
       ${coreResultsHtml()}
       ${postpartumResultsHtml()}
+      ${footnotesHtml()}
     </div>
   `;
 }

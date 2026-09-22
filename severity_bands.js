@@ -1,5 +1,5 @@
 /*
- * PPD SCREENING CLASSIFICATION (research): four bands, Low / Mild / Moderate / Severe -- PPD-Adapt
+ * AGGREGATE PPD SCORE (Research): four bands, Low / Mild / Moderate / Severe -- PPD-Adapt
  *
  * What this is: after the adaptive questions, the app estimates which published DASS-42 Depression band the respondent would have
  * been in had she answered ALL 14 DASS-42 depression items (the full-scale sum, 0 to 42). Each band gets a probability from the
@@ -19,8 +19,8 @@
  */
 const SEVERITY_BANDS = {
  "status": "UNSIGNED - DO NOT DEPLOY",
- "note": "Shown as 'PPD screening classification (research)': four bands from the published DASS-42 Depression severity ratings, with the other screening results listed beside them. Not validated for postpartum depression and not a diagnosis.",
- "naming_decision": "2026-09-21: the project lead chose the name 'PPD screening classification (research)' with a fixed limits line, and that the other results are listed as supporting findings without changing the level. The analyst's recommendation was to call it 'depressive symptom level' because no postpartum data supports the word PPD; the manuscript must describe it as a provisional composite that is not validated for postpartum depression.",
+ "note": "Shown as 'Aggregate PPD Score (Research)': four bands from the published DASS-42 Depression severity ratings, with the other screening results listed beside them as supporting findings that do not change the score. Not validated for postpartum depression and not a diagnosis.",
+ "naming_decision": "2026-09-21: the project lead chose the name 'PPD screening classification (research)' with a fixed limits line, and that the other results are listed as supporting findings without changing the level. The analyst's recommendation was to call it 'depressive symptom level' because no postpartum data supports the word PPD; the manuscript must describe it as a provisional composite that is not validated for postpartum depression. 2026-09-22: renamed again to 'Aggregate PPD Score (Research)' by the project lead, and the on-screen disclaimer text was moved into a footnote (marker after the heading) to declutter the card. The analyst noted that 'Score' can read as a number where the shown value is a category (Low/Mild/Moderate/Severe), and that 'Aggregate' should not be read as combining the supporting findings into the score -- it does not; the footnote wording makes that explicit. The manuscript must still describe it as a provisional composite that is not validated for postpartum depression.",
  "rank_rule": "median band of the posterior (the band where the cumulative probability first reaches 0.5); chosen over the most probable band because the bands are ordered and Mild is narrow: on 1,000 real DASS respondents the median rule agreed with the full-scale band 81.6% of the time (98.6% within one band) and shows Mild in about 10% of sessions, whereas the most-probable-band rule showed Mild in 0.1% (evaluation/outputs/7_8_severity_band_evaluation.json)",
  "borderline_below_probability": 0.6,
  "domain": "Depression",
