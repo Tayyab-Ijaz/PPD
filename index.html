@@ -71,6 +71,7 @@
   html[data-theme="dark"] .option-circle{background:#151b14;border-color:#718275;}
   html[data-theme="dark"] .safety-overlay{background:#241716;}
   html[data-theme="dark"] .flag-box{background:#312610;color:#e7bd69;}
+  html[data-theme="dark"] .deep-tier-note{background:#153a2d;color:#7fd3b3;}
   html[data-theme="dark"] .result-bar{background:#29352c;}
   html[data-theme="dark"] .modal-box details{background:var(--bg-soft);}
   *{box-sizing:border-box;}
@@ -347,6 +348,10 @@
   html[data-theme="dark"] .pill.low{background:#16332a;color:#7fd3b3;}
   html[data-theme="dark"] .pill.neutral{background:#171d16;}
   .flag-box{background:var(--amber-pale);border:1px solid color-mix(in srgb,var(--amber) 30%,var(--line));border-radius:10px;padding:12px 14px;font-size:12.5px;color:var(--amber);margin-top:16px;}
+  /* Soft, non-blocking notice shown above a question once its domain goes past the normal item cap --
+     deliberately calmer than .flag-box (teal, the brand's own color, not amber/warning) since this is
+     reassurance ("we're taking more care"), not a caveat about the tool's confidence. */
+  .deep-tier-note{background:var(--teal-pale);border:1px solid color-mix(in srgb,var(--teal) 25%,var(--line));border-radius:10px;padding:10px 14px;font-size:12.5px;color:var(--teal-deep);margin-bottom:14px;}
   .disclaimer{font-size:11.5px;color:var(--ink-soft);margin-top:22px;padding-top:16px;border-top:1px solid var(--line);line-height:1.6;}
 
   /* ---------- INFO SECTIONS ---------- */
@@ -851,7 +856,20 @@ const ITEMS = [{"n":1,"domain":"Stress","text_en":"I found myself getting upset 
 }));
 // END EMBEDDED items_reference.json
 const DOMAINS = ["Depression", "Anxiety", "Stress", "Fatigue", "Sleep"];
-const MAX_ITEMS_PER_DOMAIN = 6;   // no more than this many questions in one domain; a domain still short of the confidence rule stays flagged uncertain
+// Two-tier item cap (v12, 2026-09-23). Tier 1 (normal): every domain gets up to NORMAL_CAP items --
+// where the large majority of domains already resolve (simulation: Depression/Fatigue/Sleep unresolved
+// 9.4%/0%/0% at 6; webapp/verification/test_boundary_confidence_stop.py). Tier 2 (deep screening): a
+// domain still unresolved at NORMAL_CAP is not just cut off there -- it continues, up to its own entry in
+// MAX_ITEMS_PER_DOMAIN (its full item bank, bounded at 14 even where the bank is larger e.g. Sleep's 27,
+// since Sleep never actually needs it). The UI shows a soft, non-blocking note the first time a domain's
+// question goes past NORMAL_CAP (see deepTierNoteHtml()), so the respondent knows why it kept asking
+// instead of experiencing it as the tool being stuck. Generalizing this to all 5 domains (previously only
+// Anxiety/Stress had a deep tier) is a free win for Depression (unresolved 6.6% -> 0.8%) at negligible
+// session-length cost (mean 20.9 -> 21.2); Fatigue/Sleep essentially never trigger it. The residual ~18%
+// for Stress even after its full 14-item bank is the item bank's real information ceiling, not a config
+// number to keep chasing -- an honest limit, disclosed as "still uncertain", not hidden.
+const NORMAL_CAP = 6;
+const MAX_ITEMS_PER_DOMAIN = { "Depression": 14, "Anxiety": 14, "Stress": 14, "Fatigue": 11, "Sleep": 14 };
 // Content balancing: a domain is not finished until every group below has at least one asked item. Its FIRST item is always
 // free (highest information); from the second item on, while a group is unmet, the next item is chosen (still by highest
 // information) only from the unmet groups. Purpose: the core depressive symptoms (low mood, loss of interest, worthlessness,
@@ -864,10 +882,18 @@ const CONTENT_CONSTRAINTS = [
   {"name": "Psychomotor / agitation", "domain": "Stress", "items": [39]}
 ];
 const MIN_COVERAGE = 1;   // every domain gets a seed item; the rest is driven by the confidence rule (6_v4 doc; supervisor request)
-const MAX_BUDGET = 30;
+const MAX_BUDGET = 67;    // sum of MAX_ITEMS_PER_DOMAIN (14+14+14+11+14); a safety valve, not meant to bind in normal use
 const SD_CONFIDENT = 0.55;
 const RULE_OUT_MEAN = -0.5;
 const RULE_OUT_SD = 0.7;
+// Reported-label boundaries (must match levelLabel()'s thresholds below). A domain also resolves once
+// the posterior is DECISION_CONFIDENT-confident about which side of its nearest boundary the person is
+// on, even if the overall SD hasn't shrunk to SD_CONFIDENT -- most sessions that don't fully converge
+// aren't actually borderline, so this reaches a firm label sooner without lowering the SD bar (i.e.
+// without ever reporting a number the engine isn't actually sure of). Simulation-checked calibration:
+// at 0.85 the resulting calls were right 88-97% of the time across domains, so 0.85 is not overclaiming.
+const LEVEL_BOUNDARIES = [-0.5, 0.15, 0.7];
+const DECISION_CONFIDENT = 0.85;
 const FAST_RESPONSE_MS = 1200;
 
 const RESPONSE_LABELS = [
@@ -947,19 +973,30 @@ function freshState() {
   };
 }
 
-function domainResolved(mean, sd, minAsked) {
+// Posterior probability mass on the far side of `boundary`, taking whichever side already has more of
+// it (so this is always a two-sided confidence, not "how much above" specifically).
+function boundaryTailProb(quad, post, boundary) {
+  let pAbove = 0;
+  for (let i = 0; i < quad.length; i++) if (quad[i] >= boundary) pAbove += post[i];
+  return Math.max(pAbove, 1 - pAbove);
+}
+function nearestBoundary(mean) {
+  return LEVEL_BOUNDARIES.reduce((best, b) => Math.abs(b - mean) < Math.abs(best - mean) ? b : best);
+}
+function domainResolved(mean, sd, minAsked, quad, post) {
   if (minAsked < MIN_COVERAGE) return [false, "below_min_coverage"];
   if (sd <= SD_CONFIDENT) return [true, "confident_estimate"];
   if (mean <= RULE_OUT_MEAN && sd <= RULE_OUT_SD) return [true, "ruled_out"];
+  if (quad && post && boundaryTailProb(quad, post, nearestBoundary(mean)) >= DECISION_CONFIDENT) return [true, "boundary_confident"];
   return [false, "still_uncertain"];
 }
 // A domain is finished only when it has met the confidence rule AND every content group required for it has been asked.
 function unmetGroups(d) { return CONTENT_CONSTRAINTS.filter(g => g.domain === d && !state.asked.some(a => g.items.includes(a.n))); }
-function domainDone(d) { return unmetGroups(d).length === 0 && domainResolved(state.theta[d], state.sds[d], state.perDomainCount[d])[0]; }
+function domainDone(d) { return unmetGroups(d).length === 0 && domainResolved(state.theta[d], state.sds[d], state.perDomainCount[d], state.quads[d], state.priors[d])[0]; }
 // Can we still ask something in this domain? An item must remain, and the domain must be under its cap (unmet groups override the cap).
 function askable(d) {
   if (![...state.remaining].some(n => ITEM_BY_N[n].domain === d)) return false;
-  return unmetGroups(d).length > 0 || state.perDomainCount[d] < MAX_ITEMS_PER_DOMAIN;
+  return unmetGroups(d).length > 0 || state.perDomainCount[d] < MAX_ITEMS_PER_DOMAIN[d];
 }
 function eligibleItems(d) {
   const ug = unmetGroups(d);
@@ -1075,12 +1112,22 @@ function renderOptions(onPick) {
   });
 }
 
+// Soft, non-blocking heads-up shown above a question once its domain's answers haven't settled within
+// the normal item count (NORMAL_CAP) and the engine is continuing into that domain's deep tier. Purely
+// informational -- doesn't affect which item is asked or when the domain resolves (that's MAX_ITEMS_PER_DOMAIN
+// and domainResolved(), unchanged by this). Recomputed on every render, so it shows for as long as (and only
+// while) the CURRENT question's own domain is past NORMAL_CAP, and says nothing once that domain is done.
+function deepTierNoteHtml(domain) {
+  if (state.perDomainCount[domain] < NORMAL_CAP || domainDone(domain)) return "";
+  return `<div class="deep-tier-note">A few more questions will help give a clearer picture of ${domain}.</div>`;
+}
 function renderValueItem(itemNum) {
   const item = ITEM_BY_N[itemNum];
   state.currentLabels = item.labels_en || RESPONSE_LABELS;
   screenEl.innerHTML = `
     <div class="card">
       <div class="question-inner">
+        ${deepTierNoteHtml(item.domain)}
         <h1 class="q">${item.text_en}</h1>
         <div class="options" id="optsWrap"></div>
       </div>

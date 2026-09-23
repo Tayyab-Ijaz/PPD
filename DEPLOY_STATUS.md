@@ -1,4 +1,4 @@
-# Deploy status (2026-09-22, source commit 12da303)
+# Deploy status (2026-09-23, source commit 9bec474)
 
 **Deploy gate: NOT READY - do not share the URL with participants or the public**
 
