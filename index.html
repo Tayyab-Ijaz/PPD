@@ -307,6 +307,12 @@
   .nav-btn{background:none;border:1px solid var(--line);color:var(--ink-soft);border-radius:999px;padding:9px 16px;font-size:13.5px;font-family:var(--sans);cursor:pointer;}
   .nav-btn:hover,.nav-btn:focus-visible{background:var(--bg-soft);color:var(--ink);border-color:var(--ink-faint);outline:none;}
   .nav-btn.warn{color:var(--amber);border-color:color-mix(in srgb,var(--amber) 40%,var(--line));}
+  /* Next question: the primary forward action, filled so it reads as the one deliberate step (select, then confirm) --
+     distinct from the plain outline Previous/Start over controls. Disabled (nothing picked yet) is the same shape,
+     just muted, so it doesn't jump around the layout once an option is chosen. */
+  .nav-btn.primary{background:var(--teal);border-color:var(--teal);color:#fff;font-weight:600;}
+  .nav-btn.primary:hover,.nav-btn.primary:focus-visible{background:var(--teal-deep);border-color:var(--teal-deep);color:#fff;}
+  .nav-btn.primary:disabled{background:var(--bg-soft);border-color:var(--line);color:var(--ink-faint);cursor:not-allowed;}
   .nav-confirm{font-size:13px;color:var(--ink-soft);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
   /* Depressive symptom level card */
   .sev-name{font-family:var(--serif);font-size:30px;line-height:1.1;color:var(--ink);}
@@ -1094,22 +1100,39 @@ function renderSafetyItem() {
   state.itemShownAt = performance.now();
 }
 
+// Selecting an option no longer submits it immediately: it only marks the option chosen and arms the
+// "Next question" button in the nav row (see refreshNav()/commitPendingAnswer()). This is the one thing
+// pendingAnswer holds -- which index was picked, and how to actually record it (the onPick this question's
+// render function supplied) -- cleared on every fresh render and once it's been committed.
+let pendingAnswer = null;
 function renderOptions(onPick) {
   const wrap = document.getElementById("optsWrap");
   const labels = state.currentLabels || RESPONSE_LABELS;
+  pendingAnswer = null;
   labels.forEach((label, idx) => {
     const btn = document.createElement("button");
     btn.className = "opt";
     btn.innerHTML = `<span class="option-circle"></span><span>${label}</span>`;
     btn.onclick = () => {
-      const elapsed = performance.now() - state.itemShownAt;
-      if (CAN_UNDO) undoStack.push({ snap: structuredClone(state), picked: idx });   // exact copy of everything before this answer
       document.querySelectorAll('.opt').forEach(el => el.classList.remove('selected'));
       btn.classList.add('selected');
-      onPick(idx, elapsed < FAST_RESPONSE_MS);
+      pendingAnswer = { idx, onPick };
+      refreshNav();
     };
     wrap.appendChild(btn);
   });
+  refreshNav();
+}
+// Fires the currently-selected option's onPick, exactly as an immediate click used to -- same undo-stack
+// snapshot (taken here, right before anything changes) and the same elapsed-time-since-shown fast-answer
+// check, just measured at the moment of this explicit confirmation instead of at the option click.
+function commitPendingAnswer() {
+  if (!pendingAnswer) return;
+  const { idx, onPick } = pendingAnswer;
+  const elapsed = performance.now() - state.itemShownAt;
+  pendingAnswer = null;
+  if (CAN_UNDO) undoStack.push({ snap: structuredClone(state), picked: idx });   // exact copy of everything before this answer
+  onPick(idx, elapsed < FAST_RESPONSE_MS);
 }
 
 // Soft, non-blocking heads-up shown above a question once its domain's answers haven't settled within
@@ -1579,6 +1602,9 @@ function startSession() {
 // results are exactly those of a session in which the mistake was never made (webapp/verification/test_back_correction_browser.mjs).
 // The safety block is the exception: once it is complete its answers are final. "Start over" clears everything.
 // Nothing is stored; the history lives only in this tab.
+// Selecting an option no longer submits it (Phase 6 v13): it arms "Next question", the one explicit forward
+// step, so a click can be reconsidered before it counts. "Start over" is offered only on the results screen --
+// mid-session the only way back is Previous question, one step at a time (see refreshNav()).
 // ---------------------------------------------------------------------------------------------------------------
 function renderCurrent() {
   if (state.phase === "safety") { renderSafetyItem(); return; }
@@ -1592,7 +1618,7 @@ function goBack() {
   state = e.snap;
   renderCurrent();
   const opts = document.querySelectorAll("#optsWrap .opt");
-  if (opts[e.picked]) opts[e.picked].classList.add("selected");     // show the earlier answer so the change is deliberate
+  if (opts[e.picked]) opts[e.picked].click();     // reselect the earlier answer through the normal path (arms Next question), so the change is deliberate
   state.itemShownAt = performance.now() - 2 * FAST_RESPONSE_MS;      // a correction is not a rushed answer
 }
 const navRow = document.getElementById("navRow");
@@ -1602,13 +1628,19 @@ function refreshNav() {
   if (!active) { navRow.hidden = true; navRow.innerHTML = ""; return; }
   const back = undoStack.length
     ? `<button type="button" class="nav-btn" id="navBack">${state.phase === "done" ? "Change my last answer" : "Previous question"}</button>` : "<span></span>";
-  const restart = confirmingRestart
-    ? `<span class="nav-confirm">Start over and clear your answers? <button type="button" class="nav-btn warn" id="navRestartYes">Yes, start over</button><button type="button" class="nav-btn" id="navRestartNo">Cancel</button></span>`
-    : `<button type="button" class="nav-btn" id="navRestart">Start over</button>`;
-  navRow.innerHTML = back + restart;
+  // "Start over" is offered only here, on the results screen -- mid-session the only way back is Previous
+  // question, one step at a time. Every other phase shows Next question instead, disabled until an option
+  // is picked (renderOptions()/commitPendingAnswer() -- selecting no longer submits by itself).
+  const right = state.phase === "done"
+    ? (confirmingRestart
+        ? `<span class="nav-confirm">Start over and clear your answers? <button type="button" class="nav-btn warn" id="navRestartYes">Yes, start over</button><button type="button" class="nav-btn" id="navRestartNo">Cancel</button></span>`
+        : `<button type="button" class="nav-btn" id="navRestart">Start over</button>`)
+    : `<button type="button" class="nav-btn primary" id="navNext"${pendingAnswer ? "" : " disabled"}>Next question</button>`;
+  navRow.innerHTML = back + right;
   navRow.hidden = false;
   const on = (id, fn) => { const el = document.getElementById(id); if (el) el.onclick = fn; };
   on("navBack", () => { confirmingRestart = false; goBack(); });
+  on("navNext", commitPendingAnswer);
   on("navRestart", () => { confirmingRestart = true; refreshNav(); });
   on("navRestartNo", () => { confirmingRestart = false; refreshNav(); });
   on("navRestartYes", () => { confirmingRestart = false; document.getElementById("safetyOverlay").style.display = "none"; startSession(); });
