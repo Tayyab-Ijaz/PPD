@@ -72,7 +72,6 @@
   html[data-theme="dark"] .safety-overlay{background:#241716;}
   html[data-theme="dark"] .flag-box{background:#312610;color:#e7bd69;}
   html[data-theme="dark"] .deep-tier-note{background:#153a2d;color:#7fd3b3;}
-  html[data-theme="dark"] .result-bar{background:#29352c;}
   html[data-theme="dark"] .modal-box details{background:var(--bg-soft);}
   *{box-sizing:border-box;}
   html{scroll-behavior:smooth;overflow-x:hidden;}
@@ -197,7 +196,10 @@
   }
 
   /* ---------- BEFORE WE BEGIN ---------- */
-  #before-begin, #about, #resources, #contact { display:none !important; }
+  /* #about was hidden here as part of the same blanket rule until v17 (2026-09-27): the How-it-works page
+     rebuilt in this section (NEXT_STEPS_v14-v17.md Part E) needs a reachable entry point, so it is no longer
+     unconditionally hidden. #before-begin/#resources/#contact are unrelated to v17 and stay exactly as before. */
+  #before-begin, #resources, #contact { display:none !important; }
   .section{padding:56px 0;max-width:100%;overflow-x:hidden;}
   .panel{background:rgba(255,255,255,.82);border:1px solid rgba(25,47,40,.08);border-radius:28px;box-shadow:0 18px 48px -28px rgba(15,35,30,.22);padding:34px 32px;}
   .panel-head{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap;}
@@ -293,12 +295,6 @@
   .safety-list div:last-child{border-bottom:none;}
   .safety-continue{margin-top:18px;width:100%;background:var(--teal);color:#fff;border:none;padding:13px;border-radius:10px;font-size:14.5px;cursor:pointer;}
 
-  .result-domain{margin-bottom:22px;}
-  .result-domain .rd-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;}
-  .result-domain .rd-name{font-family:var(--serif);font-size:16px;}
-  .result-domain .rd-level{font-size:12.5px;color:var(--ink-soft);}
-  .result-bar{height:10px;border-radius:6px;background:var(--line);overflow:hidden;}
-  .result-bar>i{display:block;height:100%;}
   .attribution{margin-top:8px;font-size:12.5px;color:var(--ink-soft);}
   .attribution b{color:var(--ink);font-weight:600;}
   /* Back / start over controls under the question card */
@@ -360,6 +356,65 @@
   .deep-tier-note{background:var(--teal-pale);border:1px solid color-mix(in srgb,var(--teal) 25%,var(--line));border-radius:10px;padding:10px 14px;font-size:12.5px;color:var(--teal-deep);margin-bottom:14px;}
   .disclaimer{font-size:11.5px;color:var(--ink-soft);margin-top:22px;padding-top:16px;border-top:1px solid var(--line);line-height:1.6;}
 
+  /* Phase stepper (v14): makes the postpartum-specific part of the session visible as its own stage, not
+     buried inside "the adaptive questions". Steps are keyed to state.phase; v15 will insert an "About you"
+     step between Safety and Feelings without touching this markup (see PHASE_STEPS). */
+  .phase-stepper{display:flex;gap:4px;margin:0 0 18px;flex-wrap:wrap;}
+  .phase-stepper[hidden]{display:none;}
+  .phase-step{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--ink-faint);padding:5px 10px 5px 6px;border-radius:999px;background:var(--bg-soft);border:1px solid var(--line);}
+  .phase-step b{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:var(--line);color:var(--card);font-size:10px;font-weight:700;flex:none;}
+  .phase-step.done{color:var(--teal-deep);}
+  .phase-step.done b{background:var(--teal);color:#fff;}
+  .phase-step.active{color:var(--ink);font-weight:600;border-color:var(--teal);background:var(--teal-pale);}
+  .phase-step.active b{background:var(--teal-deep);color:#fff;}
+  html[data-theme="dark"] .phase-step{background:#1d261e;border-color:#344237;}
+  html[data-theme="dark"] .phase-step.active{background:#153a2d;}
+
+  /* Score decomposition donut (Part C, v14) */
+  .decomp-wrap{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;}
+  .decomp-donut{flex:none;text-align:center;}
+  .decomp-legend{flex:1 1 260px;min-width:240px;}
+  .decomp-toggle{font-size:12px;color:var(--teal-deep);background:none;border:1px solid color-mix(in srgb,var(--teal) 30%,var(--line));border-radius:999px;padding:6px 12px;cursor:pointer;margin:10px 0 4px;}
+  .decomp-toggle:hover{background:var(--teal-pale);}
+  .decomp-list{list-style:none;margin:0;padding:0;}
+  .decomp-row{display:flex;align-items:baseline;gap:8px;padding:7px 0;border-top:1px solid var(--line);font-size:13px;}
+  .decomp-row:first-child{border-top:none;}
+  .decomp-swatch{width:10px;height:10px;border-radius:3px;flex:none;margin-top:2px;}
+  .decomp-row-main{flex:1;}
+  .decomp-row-label{color:var(--ink);font-weight:600;}
+  .decomp-row-crit{color:var(--ink-faint);font-size:11px;margin-left:4px;}
+  .decomp-row-detail{color:var(--ink-soft);font-size:12px;margin-top:2px;line-height:1.5;}
+  .decomp-row-pts{color:var(--ink-soft);font-size:12.5px;white-space:nowrap;}
+  .decomp-empty{font-size:13px;color:var(--ink-soft);padding:10px 0;}
+  .decomp-est-key{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-soft);margin-top:10px;}
+  /* Beyond-the-score bullet chart (Part C.3, v14) */
+  .beyond-row{display:grid;grid-template-columns:120px 1fr 90px;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:12.5px;}
+  .beyond-row:first-child{border-top:none;}
+  .beyond-name{color:var(--ink);font-weight:600;}
+  .beyond-track{position:relative;height:8px;border-radius:4px;background:var(--line);}
+  .beyond-track i{position:absolute;top:0;height:100%;border-radius:4px;}
+  .beyond-track b{position:absolute;top:-3px;width:2px;height:14px;background:var(--ink);opacity:.4;}
+  .beyond-status{text-align:right;color:var(--ink-soft);}
+  /* Bonding "how we got here" trace + item table (Part D.2, v14) */
+  .pp-trace{font-size:12px;color:var(--ink-soft);margin-top:8px;line-height:1.7;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 10px;}
+  .pp-trace code{font-family:var(--sans);font-size:11.5px;color:var(--ink);background:none;}
+  .pp-item-table{margin-top:8px;border:1px solid var(--line);border-radius:8px;background:var(--card);padding:6px 4px 6px 6px;}
+  .pp-item-table summary{cursor:pointer;font-size:12px;color:var(--teal-deep);font-weight:600;padding:4px 6px;}
+  .pp-item-table table{width:100%;border-collapse:collapse;margin-top:6px;font-size:12px;}
+  .pp-item-table td{padding:5px 6px;border-top:1px solid var(--line);color:var(--ink-soft);}
+  .pp-item-table td:first-child{color:var(--ink);}
+  .pp-item-table td:last-child{text-align:right;white-space:nowrap;}
+  .pp-gap{font-size:11.5px;color:var(--ink-faint);margin-top:8px;line-height:1.6;}
+  html[data-theme="dark"] .pp-trace,html[data-theme="dark"] .pp-item-table{background:#171d16;border-color:#344237;}
+
+  @media print{
+    .nav,.nav-row,#navRow,.hero,.foot-item,.panel-start,#homePage,.info-section,.decomp-toggle,footer.site,#safetyOverlay{display:none !important;}
+    body,.container{background:#fff !important;}
+    .card{box-shadow:none !important;border:none !important;}
+    .res-section{margin-top:18px;}
+    .res-card{break-inside:avoid;}
+  }
+
   /* ---------- INFO SECTIONS ---------- */
   .info-section h2{font-size:26px;margin-bottom:14px;display:flex;align-items:center;gap:10px;}
   .info-section h2 .icon{width:21px;height:21px;color:var(--teal);}
@@ -372,6 +427,40 @@
   .lede{font-size:15px;color:var(--ink-soft);line-height:1.7;max-width:74ch;}
   @media (max-width:880px){.info-grid{grid-template-columns:1fr 1fr;}}
   @media (max-width:560px){.info-grid{grid-template-columns:1fr;}}
+
+  /* ---- v17 How-it-works page (NEXT_STEPS_v14-v17.md Part E) ---- */
+  .about-toc{display:flex;flex-wrap:wrap;gap:6px 10px;margin:18px 0 28px;padding:14px 16px;background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--r-md);}
+  .about-toc a{font-size:12.5px;color:var(--teal-deep);text-decoration:none;}
+  .about-toc a:hover{text-decoration:underline;}
+  .about-sub{padding:26px 0;border-top:1px solid var(--line);}
+  .about-sub:first-of-type{border-top:none;padding-top:6px;}
+  .about-sub h3{font-family:var(--sans);font-size:16px;font-weight:700;margin-bottom:8px;}
+  .about-plain{font-size:14px;color:var(--ink);line-height:1.7;max-width:76ch;}
+  .about-plain p{margin:0 0 10px;}
+  .ev-chips{margin:6px 0 12px;}
+  .ev-chip{display:inline-block;font-size:11px;font-weight:600;padding:3px 10px;border-radius:999px;border:1px solid var(--line);color:var(--ink-soft);background:var(--card);margin:0 6px 6px 0;letter-spacing:.01em;}
+  .about-tech{border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-top:12px;background:var(--bg-soft);max-width:76ch;}
+  .about-tech summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--ink);}
+  .about-tech[open] summary{margin-bottom:8px;}
+  .about-tech p, .about-tech li{font-size:13px;color:var(--ink-soft);line-height:1.6;}
+  .about-tech table{border-collapse:collapse;font-size:12.5px;margin-top:8px;width:100%;}
+  .about-tech th,.about-tech td{border:1px solid var(--line);padding:5px 8px;text-align:left;}
+  .pipeline-flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:0;margin:14px 0;}
+  .pipeline-step{background:var(--card);border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 14px;font-size:12.5px;min-width:120px;flex:1 1 140px;}
+  .pipeline-step b{display:block;font-size:13px;margin-bottom:3px;}
+  .pipeline-arrow{display:flex;align-items:center;justify-content:center;color:var(--ink-faint);font-size:16px;padding:0 4px;flex:0 0 auto;}
+  .we-box{background:var(--card);border:1px solid var(--line);border-radius:var(--r-md);padding:18px;margin-top:14px;max-width:76ch;}
+  .we-btn{background:var(--teal);color:#fff;border:none;border-radius:999px;padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer;}
+  .we-btn:hover{background:var(--teal-deep);}
+  .we-steps{margin-top:14px;max-height:260px;overflow-y:auto;border-top:1px solid var(--line);}
+  .we-step{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;padding:7px 0;border-bottom:1px solid var(--line);}
+  .we-step span:first-child{color:var(--ink-soft);}
+  .we-sd-bar{margin-top:14px;}
+  .we-sd-row{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--ink-soft);margin-bottom:3px;}
+  .we-sd-track{flex:1;height:8px;background:var(--bg-soft);border-radius:4px;overflow:hidden;position:relative;}
+  .we-sd-fill{height:100%;background:var(--teal);}
+  .we-sd-track .we-sd-threshold{position:absolute;top:0;bottom:0;width:2px;background:var(--brick);}
+  @media (max-width:700px){.pipeline-flow{flex-direction:column;}.pipeline-arrow{transform:rotate(90deg);padding:2px 0;}}
 
   .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:24px;}
   .contact-form{display:flex;flex-direction:column;gap:14px;}
@@ -435,6 +524,10 @@
           <svg class="icon" viewBox="0 0 24 24"><path d="M20 14.2A8.4 8.4 0 1 1 9.8 4a6.9 6.9 0 0 0 10.2 10.2Z"/></svg>
         </button>
       </div>
+      <button class="icon-btn" id="howItWorksBtn">
+        <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+        <span class="label">How it works</span>
+      </button>
       <button class="icon-btn" id="privacyBtn">
         <svg class="icon" viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 5-3.4 7.6-7 9-3.6-1.4-7-4-7-9V6l7-3Z"/></svg>
         <span class="label">Privacy</span>
@@ -459,8 +552,7 @@
   <a href="#home" class="nav-link" data-target="home">Home</a>
   <a href="#about" class="nav-link" data-target="about">About</a>
   <a href="#assessment-anchor" class="nav-link" data-target="assessment-anchor">Assessment</a>
-  <a href="#resources" class="nav-link" data-target="resources">Resources</a>
-  <a href="#contact" class="nav-link" data-target="contact">Contact</a>
+  <button class="icon-btn" id="mHowItWorksBtn"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span class="label">How it works</span></button>
   <button class="icon-btn" id="mPrivacyBtn"><svg class="icon" viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 5-3.4 7.6-7 9-3.6-1.4-7-4-7-9V6l7-3Z"/></svg><span class="label">Privacy</span></button>
   <button class="icon-btn" id="mHelpBtn"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.1 9.2a3 3 0 1 1 4.6 2.5c-1 .6-1.7 1.2-1.7 2.3"/><circle cx="12" cy="17" r=".9" fill="currentColor" stroke="none"/></svg><span class="label">Help</span></button>
 </div>
@@ -561,32 +653,16 @@
   <!-- ============ ASSESSMENT (hidden until start) ============ -->
   <section class="section assessment-section" id="assessment">
     <div class="container">
-      <div class="quiz-wrap"><div id="screen"></div><div id="navRow" class="nav-row" hidden></div></div>
+      <div class="quiz-wrap"><div id="phaseStepper" class="phase-stepper" hidden></div><div id="screen"></div><div id="navRow" class="nav-row" hidden></div></div>
     </div>
   </section>
 
-  <!-- ============ ABOUT ============ -->
+  <!-- ============ ABOUT / HOW IT WORKS (v17, NEXT_STEPS_v14-v17.md Part E) ============ -->
   <section class="section info-section" id="about">
     <div class="container">
-      <h2><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>About this build</h2>
-      <p class="lede">PPD-Adapt is an adaptive screening prototype. Instead of a fixed, one-size-fits-all questionnaire, it uses an item-response-theory engine to pick the single most informative next question based on everything you've answered so far, which is why most sessions end well before every item has been asked.</p>
-      <div class="info-grid">
-        <div class="info-card">
-          <div class="i-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M4 19l6-12 4 8 3-5 3 9"/></svg></div>
-          <h3>Adaptive by design</h3>
-          <p>Each answer updates a running estimate across five domains, and the engine stops early once it has enough information, or reaches the session limit.</p>
-        </div>
-        <div class="info-card">
-          <div class="i-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 5-3.4 7.6-7 9-3.6-1.4-7-4-7-9V6l7-3Z"/></svg></div>
-          <h3>Runs on your device</h3>
-          <p>The engine, item bank, and scoring all run client-side in this page. Nothing is uploaded, logged, or shared with a server.</p>
-        </div>
-        <div class="info-card">
-          <div class="i-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.1 9.2a3 3 0 1 1 4.6 2.5c-1 .6-1.7 1.2-1.7 2.3"/><circle cx="12" cy="17" r=".9" fill="currentColor" stroke="none"/></svg></div>
-          <h3>Honest about its limits</h3>
-          <p>This is a screening prototype, not a diagnosis. Currently the questions are in English. We are working on other languages as well.</p>
-        </div>
-      </div>
+      <h2><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>How this build works</h2>
+      <p class="lede">A transparent, verifiable account of how your answers become the results screen: what is measured, what is estimated, what is simulated, and what has not been tested at all. Every number below is generated from this build's own test and evaluation output, not typed in by hand -- see the "Technical detail" disclosure under each section for the reference and the exact evidence tier.</p>
+      <div id="aboutContent"></div>
     </div>
   </section>
 
@@ -712,8 +788,11 @@
 <div id="safetyOverlay" style="display:none"></div>
 <script src="escalation_content.js"></script>
 <script src="postpartum_module.js"></script>
+<script src="context_module.js"></script>
 <script src="core_symptoms.js"></script>
 <script src="severity_bands.js"></script>
+<script src="timing_module.js"></script>
+<script src="sensitive_module.js"></script>
 
 <script>
 // ============================================================
@@ -767,6 +846,13 @@
     if (el) el.onclick = () => { document.getElementById('mobileMenu').classList.remove('open'); openModal('privacyModal'); };
   });
   document.getElementById('footPrivacyLink').onclick = (e) => { e.preventDefault(); openModal('privacyModal'); };
+  ['howItWorksBtn','mHowItWorksBtn'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.onclick = () => {
+      document.getElementById('mobileMenu').classList.remove('open');
+      document.getElementById('about').scrollIntoView({ behavior: 'smooth' });
+    };
+  });
   ['helpBtn','mHelpBtn'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.onclick = () => { document.getElementById('mobileMenu').classList.remove('open'); openModal('helpModal'); };
@@ -861,6 +947,9 @@ const ITEMS = [{"n":1,"domain":"Stress","text_en":"I found myself getting upset 
   d4: item.d4 ?? item.d?.[3]
 }));
 // END EMBEDDED items_reference.json
+// BEGIN EMBEDDED about_facts.json -- generated by webapp/verification/embed_items_into_app.py; edit via scripts/build_about_facts.py, not this block
+const ABOUT_FACTS = {"budget_recovery_correlation":{"by_domain":{"Anxiety":{"mean_items_asked":5.65,"r_vs_full_bank":0.894},"Depression":{"mean_items_asked":4.45,"r_vs_full_bank":0.872},"Fatigue":{"mean_items_asked":2.0,"r_vs_full_bank":0.927},"Sleep":{"mean_items_asked":1.0,"r_vs_full_bank":0.919},"Stress":{"mean_items_asked":8.62,"r_vs_full_bank":0.802}},"caveat":"measured before the v11/v12 two-tier item cap; session-length figures are superseded by the live parity block above, only the recovery correlations are carried forward here","source":"evaluation/outputs/7_4_five_domain_engine_evaluation.json (shipped MIN_COVERAGE=1 setting)"},"context_incremental_value":{"delta_auc":-0.007,"delta_auc_ci95":[-0.013,-0.002],"n":601,"note":"for this sample and this 3-item adaptive short form; not a universal claim that risk factors never add predictive value","source":"evaluation/outputs/8_1_context_factors_held_sample.json (V2)"},"context_module":{"core_only_shipped_default":true,"core_set_items":18,"full_set_items":29},"generated_by":"scripts/build_about_facts.py","held_sample_concordance":{"auc_at_3_items":0.961,"auc_at_3_items_ci95":[0.948,0.971],"auc_full_item_set":0.975,"criterion_prevalence":0.437,"n":791,"note":"concordance with EPDS/PHQ-9 total scores in an internet/held-sample population, NOT diagnostic accuracy against a clinical interview","pool":"pool = PHQ-9 items 1-8 (item 9, self-harm, is the safety block) -> criterion EPDS>=13","source":"evaluation/outputs/7_5_held_sample_validation.json"},"item_bank":{"items_by_domain":{"Anxiety":14,"Depression":14,"Fatigue":11,"Sleep":27,"Stress":14},"total_items":80},"measurement_model":{"model_fit_comparison_AIC_BIC_logLik":[{"AIC":3241278,"BIC":3242702,"logLik":-1620471,"model":"Unidimensional"},{"AIC":3126272,"BIC":3127722,"logLik":-1562965,"model":"Correlated 3-factor (Dep/Anx/Stress, no general factor)"},{"AIC":3085669,"BIC":3087449,"logLik":-1542625,"model":"Bifactor (General + 3 specific)"}],"n_dass42_respondents":35502,"source":"measurement-model/docs/2_2_2_3_documentation.md","winner":"Bifactor (General + 3 specific)"},"note":"Every number here traces to a file on disk read by this script -- see its own header comment for the two categories of number that deliberately live elsewhere (live engine constants; live parity results) instead of being duplicated into this file.","parity":{"adaptive_items_max":45,"adaptive_items_mean":23.198275862068964,"adaptive_items_min":12,"fixture_version":"7.0.0","n_sessions":348,"pass":true,"sessions_with_divergence":0,"stop_reasons":{"all_domains_resolved":222,"items_exhausted":126}},"sensitive_module":{"items":6},"severity_band_agreement":{"borderline_exact":0.565,"borderline_share":0.262,"depression_items_asked_max":14,"depression_items_asked_mean":4.45,"depression_items_asked_min":4,"exact":0.825,"n":1000,"not_borderline_exact":0.917,"note":"truth = band of the respondent's actual full 14-item DASS-42 Depression sum; DASS respondents are an internet sample, not postpartum mothers","quadratic_weighted_kappa":0.927,"source":"evaluation/outputs/7_8_severity_band_evaluation.json","within_one":0.986},"timing_module":{"items":3}};
+// END EMBEDDED about_facts.json
 const DOMAINS = ["Depression", "Anxiety", "Stress", "Fatigue", "Sleep"];
 // Two-tier item cap (v12, 2026-09-23). Tier 1 (normal): every domain gets up to NORMAL_CAP items --
 // where the large majority of domains already resolve (simulation: Depression/Fatigue/Sleep unresolved
@@ -900,6 +989,41 @@ const RULE_OUT_SD = 0.7;
 // at 0.85 the resulting calls were right 88-97% of the time across domains, so 0.85 is not overclaiming.
 const LEVEL_BOUNDARIES = [-0.5, 0.15, 0.7];
 const DECISION_CONFIDENT = 0.85;
+// v15, M2 (NEXT_STEPS_v14-v17.md Part B.7): risk-aware stopping. When the context module (context_module.js)
+// finds a Tier-1 upfront-history item positive, the engine gathers MORE evidence before stopping on
+// Depression/Anxiety -- never changes the likelihood or the prior, only how many items are asked. Trigger is
+// deliberately restricted to B1/B2/B3 (history, not socioeconomic factors), so the extra questioning stays tied
+// to the strongest evidence and never becomes "ask poorer women more questions". Invariants tested in
+// webapp/verification/test_context_risk_stopping.py: (i) identical answers to identical items give a
+// bit-identical theta/band whether or not the flag is set; (ii) the flag never reduces the item count; (iii)
+// the safety block is unaffected.
+const CONTEXT_RISK_STOPPING = {
+  "enabled": true,
+  "trigger": ["B1", "B2", "B3"],
+  "domains": ["Depression", "Anxiety"],
+  "min_items": 3,
+  "decision_confident": 0.90,
+  "disable_rule_out_before_min": true,
+  "pbq_expand_threshold": 1
+};
+// v15 core-set option (NEXT_STEPS_v14-v17.md Part B.3, added 2026-09-27): the ~16-item core-set trim plus
+// G1-G3 (thyroid/anaemia/substance-use pathway flags -- medical differentials, not risk-factor burden, kept
+// because they are cheap at 3 items), alongside the full Block A-G set built above. **SHIPPED DEFAULT since
+// 2026-09-27** (project lead's decision, evaluation/docs/8_3_context_core_set_burden.md): `enabled: true` --
+// only CONTEXT_MODULE.core_item_ids are asked to a respondent by default. The full set is KEPT IN CODE, not
+// deleted, as a research/manuscript config option (set false to restore it). An object with an `enabled` field
+// (like CONTEXT_RISK_STOPPING above), not a bare const boolean, so a test harness can flip it at runtime via
+// page.evaluate() (mutating the object, not rebinding the const) without a test-only code path. Mirrors
+// context_module.py's `core_only` parameter exactly: engine_5domain.py's run_session() reads THIS SAME value
+// (via load_constants(), the same pattern as CONTEXT_RISK_STOPPING) whenever its own context_core_only argument
+// is not explicitly overridden, so the Python reference always matches whatever this flag actually says.
+const CONTEXT_MODULE_CORE_ONLY = { "enabled": true };
+// v16 (NEXT_STEPS_v14-v17.md Part B.3/B.5, Block S): KEPT OFF BY DEFAULT. Per Part G item 4, the IPV/sensitive
+// block must not ship without a real, clinician-supplied support-pathway referral route for S4 -- none exists
+// yet, so this whole block (including S0's privacy gate) is never shown to a respondent while false, even
+// though sensitive_module.js is fully built and tested. An object with an `enabled` field, like
+// CONTEXT_RISK_STOPPING/CONTEXT_MODULE_CORE_ONLY, mirrored by engine_5domain.py's load_constants().
+const BLOCK_S_ENABLED = { "enabled": false };
 const FAST_RESPONSE_MS = 1200;
 
 const RESPONSE_LABELS = [
@@ -976,7 +1100,39 @@ function freshState() {
     fastResponseCount: 0,
     itemShownAt: 0,
     phase: "safety",
+    context: null,
+    decompShowReportedOnly: false,
   };
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// Phase stepper (v14, Part D.1): makes the postpartum-specific part of the session visible as its own named
+// stage. Keyed to state.phase, which already exists (safety -> value -> core -> postpartum -> done). Kept as a
+// small ordered list, not hard-coded markup, so v15 can insert an "About you" step between safety and value
+// without restructuring anything here.
+// ---------------------------------------------------------------------------------------------------------------
+const PHASE_STEPS = [
+  { key: "safety", label: "Safety" },
+  { key: "context", label: "About you" },
+  { key: "value", label: "How you've been feeling" },
+  { key: "core", label: "How you've been feeling" },
+  { key: "postpartum", label: "You and your baby" },
+  { key: "timing", label: "A few more details" },
+  { key: "sensitive", label: "A few more details" },
+  { key: "done", label: "Results" },
+];
+function renderPhaseStepper() {
+  const el = document.getElementById("phaseStepper");
+  if (!el) return;
+  if (!state || !PHASE_STEPS.some(s => s.key === state.phase)) { el.hidden = true; el.innerHTML = ""; return; }
+  const order = []; PHASE_STEPS.forEach(s => { if (!order.some(o => o.label === s.label)) order.push(s); });
+  const currentLabel = PHASE_STEPS.find(s => s.key === state.phase).label;
+  const currentIdx = order.findIndex(s => s.label === currentLabel);
+  el.innerHTML = order.map((s, i) => {
+    const cls = i === currentIdx ? "active" : (i < currentIdx ? "done" : "");
+    return `<span class="phase-step ${cls}"><b>${i < currentIdx ? "✓" : i + 1}</b>${s.label}</span>`;
+  }).join("");
+  el.hidden = false;
 }
 
 // Posterior probability mass on the far side of `boundary`, taking whichever side already has more of
@@ -989,16 +1145,24 @@ function boundaryTailProb(quad, post, boundary) {
 function nearestBoundary(mean) {
   return LEVEL_BOUNDARIES.reduce((best, b) => Math.abs(b - mean) < Math.abs(best - mean) ? b : best);
 }
-function domainResolved(mean, sd, minAsked, quad, post) {
-  if (minAsked < MIN_COVERAGE) return [false, "below_min_coverage"];
+// v15, M2 (CONTEXT_RISK_STOPPING): when state.context.m2Risk (the context module found a Tier-1 history item
+// positive) and `domain` is one of CONTEXT_RISK_STOPPING.domains, the domain needs at least min_items before it
+// can resolve at all (this alone also implements "no rule-out stop before min_items", since rule-out is gated
+// by the same check below), and boundary-confidence stopping needs decision_confident instead of the default.
+// Never changes the likelihood or the prior -- only how many items must be asked before any stopping path fires.
+function domainResolved(domain, mean, sd, minAsked, quad, post) {
+  const risky = state.context && state.context.m2Risk && CONTEXT_RISK_STOPPING.enabled && CONTEXT_RISK_STOPPING.domains.includes(domain);
+  const minReq = risky ? Math.max(MIN_COVERAGE, CONTEXT_RISK_STOPPING.min_items) : MIN_COVERAGE;
+  if (minAsked < minReq) return [false, "below_min_coverage"];
   if (sd <= SD_CONFIDENT) return [true, "confident_estimate"];
   if (mean <= RULE_OUT_MEAN && sd <= RULE_OUT_SD) return [true, "ruled_out"];
-  if (quad && post && boundaryTailProb(quad, post, nearestBoundary(mean)) >= DECISION_CONFIDENT) return [true, "boundary_confident"];
+  const confidentThreshold = risky ? CONTEXT_RISK_STOPPING.decision_confident : DECISION_CONFIDENT;
+  if (quad && post && boundaryTailProb(quad, post, nearestBoundary(mean)) >= confidentThreshold) return [true, "boundary_confident"];
   return [false, "still_uncertain"];
 }
 // A domain is finished only when it has met the confidence rule AND every content group required for it has been asked.
 function unmetGroups(d) { return CONTENT_CONSTRAINTS.filter(g => g.domain === d && !state.asked.some(a => g.items.includes(a.n))); }
-function domainDone(d) { return unmetGroups(d).length === 0 && domainResolved(state.theta[d], state.sds[d], state.perDomainCount[d], state.quads[d], state.priors[d])[0]; }
+function domainDone(d) { return unmetGroups(d).length === 0 && domainResolved(d, state.theta[d], state.sds[d], state.perDomainCount[d], state.quads[d], state.priors[d])[0]; }
 // Can we still ask something in this domain? An item must remain, and the domain must be under its cap (unmet groups override the cap).
 function askable(d) {
   if (![...state.remaining].some(n => ITEM_BY_N[n].domain === d)) return false;
@@ -1090,8 +1254,7 @@ function renderSafetyItem() {
     if (state.safetyIdx >= SAFETY_ITEMS.length) {
       undoStack.length = 0;   // the safety answers are final once the block is complete; Back never crosses into it
       if (state.safetyPositive) { showSafetyEscalation(state.escalationCategories); return; }
-      state.phase = "value";
-      advance();
+      beginContext();
     } else {
       state.itemShownAt = performance.now();
       renderSafetyItem();
@@ -1226,12 +1389,12 @@ function showSafetyEscalation(categories) {
 }
 function dismissSafety() {
   document.getElementById("safetyOverlay").style.display = "none";
-  state.phase = "value";
-  advance();
+  beginContext();
 }
 
 function advance(rerenderOnly) {
   if (state.phase === "safety") { renderSafetyItem(); return; }
+  if (state.phase === "context") { renderContextItem(state.ctx.current); return; }
   if (state.phase === "value") {
     const check = shouldStop();
     if (check.stop) { state.stopReason = check.reason; state.unresolved = check.unresolved; beginCore(); return; }
@@ -1246,50 +1409,105 @@ function advance(rerenderOnly) {
   }
   if (state.phase === "core") { renderCoreItem(state.core.current); return; }
   if (state.phase === "postpartum") { renderPostpartumItem(state.pp.current); return; }
+  if (state.phase === "timing") { renderTimingItem(state.timing.current); return; }
+  if (state.phase === "sensitive") { renderSensitiveItem(state.sensitive.current); return; }
 }
 
 // ---------------------------------------------------------------------------------------------------------------
-// Depressive symptom level (severity_bands.js): which published DASS-42 Depression band would the FULL 14-item scale have given?
-// P(band) = sum over the (general, Depression) posterior grid of P(full-scale sum in band | grid point); the sum's exact distribution
-// comes from the 14 items' response probabilities (Lord-Wingersky recursion). The table P(band | grid point) does not depend on the
-// session, so it is built once. The shown level is the MEDIAN band. Reference: selection-engine/scripts/severity_band.py.
+// Aggregate PPD Score / "depressive symptom level" (severity_bands.js): which published DASS-42 Depression band
+// would the FULL 14-item scale have given? v14.1 (2026-09-26), the CONDITIONAL BAND method: fixes the items she
+// actually answered at her reported value (observedSum) and marginalises only the posterior-predictive
+// distribution of the UNASKED items over the (general, Depression) posterior grid, then shifts that distribution
+// by observedSum -- rather than re-modelling every item, including the ones she answered, from the posterior
+// (the original method). Adopted because it is better calibrated (lower Brier score in every confidence bin,
+// never overconfident) and matches the score-decomposition donut's logic (Part C, v14), which also fixes
+// observed answers. The exact-agreement/kappa gap between the two methods was NOT statistically distinguishable
+// on n=1,000 real DASS respondents (paired McNemar test) -- see evaluation/docs/7_9_conditional_band_evaluation.md
+// and webapp/docs/6_v14.1_conditional_band.md. The shown level is the MEDIAN band.
+// Reference: selection-engine/scripts/severity_band.py (conditional_band_probabilities).
 // ---------------------------------------------------------------------------------------------------------------
 function sevAvailable() { return typeof SEVERITY_BANDS !== "undefined"; }
-let SEV_TABLE = null;
-function buildSeverityTable() {
-  const cfg = SEVERITY_BANDS, nb = cfg.bands.length, n = QUAD.length;
-  const dom = ITEMS.filter(i => i.domain === cfg.domain);
-  const table = new Float64Array(n * n * nb);
+// P(sum of unaskedItems = v), marginalised over the (general, domain) posterior grid wG x wS. Mirrors
+// evaluation/scripts/7_9_conditional_band_evaluation.py's sum_distribution_subset()+weighting and
+// selection-engine/scripts/severity_band.py's sum_distribution_subset() (the parity harness checks this JS
+// against that Python reference).
+function unaskedMarginal(unaskedItems, wG, wS) {
+  const n = QUAD.length;
+  let marg = [];
   for (let gi = 0; gi < n; gi++) {
+    const wg = wG[gi];
+    if (wg === 0) continue;
     for (let si = 0; si < n; si++) {
+      const w = wg * wS[si];
+      if (w === 0) continue;
       let dist = [1];
-      for (const it of dom) {
+      for (const it of unaskedItems) {
         const p = grmProbs(QUAD[gi], QUAD[si], it);
         const nd = new Array(dist.length + p.length - 1).fill(0);
         for (let k = 0; k < dist.length; k++) for (let c = 0; c < p.length; c++) nd[k + c] += dist[k] * p[c];
         dist = nd;
       }
-      for (let b = 0; b < nb; b++) {
-        let t = 0;
-        for (let v = cfg.bands[b].min; v <= Math.min(cfg.bands[b].max, dist.length - 1); v++) t += dist[v];
-        table[(gi * n + si) * nb + b] = t;
-      }
+      for (let v = 0; v < dist.length; v++) marg[v] = (marg[v] || 0) + w * dist[v];
     }
   }
-  return table;
+  const tot = marg.reduce((a, b) => a + b, 0);
+  return marg.map(x => x / tot);
 }
-function areasSectionHtml() {
-  return `<div class="res-section"><h2>Areas on their own${footnote("Each bar shows one area after taking general distress into account, so a bar can look typical while the score above is higher.")}</h2></div>`;
+// Part C.3 (v14): "beyond the score" -- the donut above covers only Depression-domain content, because that
+// is all the Aggregate PPD Score uses. Postpartum depression typically presents with MORE anxiety and
+// concentration difficulty and LESS sadness than non-perinatal depression (Riseup-PPD 2024), so a clinician who
+// only looked at the donut would miss the typical presentation. This panel is deliberately separate and never
+// feeds back into the score.
+function beyondScoreSectionHtml() {
+  const boundaryPct = v => Math.round(Math.min(100, Math.max(0, (v + 2) / 4 * 100)));
+  const rows = DOMAINS.filter(d => d !== "Depression").map(d => {
+    const mean = state.theta[d];
+    const marks = LEVEL_BOUNDARIES.map(b => `<b style="left:${boundaryPct(b)}%"></b>`).join("");
+    const label = (d === "Fatigue" || d === "Sleep")
+      ? `${d}${footnote("Can reflect normal newborn care, or anaemia, rather than a mood symptom on its own.")}`
+      : d;
+    return `<div class="beyond-row"><span class="beyond-name">${label}</span>
+      <div class="beyond-track"><i style="width:${barWidth(mean)};background:${barColor(d)}"></i>${marks}</div>
+      <span class="beyond-status">${levelLabel(mean)}</span></div>`;
+  }).join("");
+  let pbqRows = "";
+  if (state.pp && state.pp.subscales) {
+    const M = POSTPARTUM_MODULE;
+    pbqRows = Object.entries(state.pp.subscales).map(([k, r]) => {
+      const sub = M.subscales[k];
+      if (!r.complete) {
+        return `<div class="beyond-row"><span class="beyond-name">${sub.name}</span><div class="beyond-track"></div>
+          <span class="beyond-status">${r.status === "screened_negative" ? "Screened only" : "Curtailed, not high"}</span></div>`;
+      }
+      const max = sub.range[1], p = Math.round(100 * r.score / max), cutP = Math.round(100 * r.cutoff_high / max);
+      return `<div class="beyond-row"><span class="beyond-name">${sub.name}</span>
+        <div class="beyond-track"><i style="width:${p}%;background:${r.status === "high" ? "var(--amber)" : "var(--teal)"}"></i><b style="left:${cutP}%"></b></div>
+        <span class="beyond-status">${r.status === "high" ? "At/above cut-off" : "Below cut-off"}</span></div>`;
+    }).join("");
+  }
+  return `<div class="res-section">
+    <h2>Other areas: not part of the Aggregate PPD Score</h2>
+    <p class="res-sub">Each bar shows one area on its own, after taking general distress into account, so a bar can look typical while the score above is higher. None of these change the score.</p>
+    <div class="res-card">${rows}${pbqRows}</div>
+  </div>`;
 }
 function severityResult() {
-  const cfg = SEVERITY_BANDS, nb = cfg.bands.length, n = QUAD.length;
-  if (!SEV_TABLE) SEV_TABLE = buildSeverityTable();
+  const cfg = SEVERITY_BANDS, nb = cfg.bands.length;
   const wG = state.priors.G, wS = state.priors[cfg.domain];
-  let probs = new Array(nb).fill(0);
-  for (let gi = 0; gi < n; gi++) for (let si = 0; si < n; si++) {
-    const w = wG[gi] * wS[si];
-    for (let b = 0; b < nb; b++) probs[b] += w * SEV_TABLE[(gi * n + si) * nb + b];
-  }
+  const domItems = ITEMS.filter(i => i.domain === cfg.domain);
+  const askedByN = {};
+  state.asked.forEach(a => { if (a.domain === cfg.domain) askedByN[a.n] = a.response; });
+  const unaskedItems = domItems.filter(it => !(it.n in askedByN));
+  const observedSum = Object.values(askedByN).reduce((a, b) => a + b, 0);
+  const marg = unaskedItems.length ? unaskedMarginal(unaskedItems, wG, wS) : [1];
+  const maxSum = 3 * domItems.length;
+  const dist = new Array(maxSum + 1).fill(0);
+  for (let v = 0; v < marg.length && observedSum + v <= maxSum; v++) dist[observedSum + v] = marg[v];
+  let probs = cfg.bands.map(b => {
+    let t = 0;
+    for (let v = b.min; v <= Math.min(b.max, dist.length - 1); v++) t += dist[v];
+    return t;
+  });
   const tot = probs.reduce((a, b) => a + b, 0);
   probs = probs.map(x => x / tot);
   let cum = 0, top = nb - 1;
@@ -1332,14 +1550,248 @@ function severityCardHtml() {
   </div>`;
 }
 
+// ---------------------------------------------------------------------------------------------------------------
+// Part C (v14): "what makes up this score" -- an EXACT decomposition of a DASS-42 Depression total into
+// points from the items actually asked (split into the manual's 7 content areas, Lovibond & Lovibond 1995 --
+// item pairs verified against items_reference.json/ITEMS in this build) and one neutral remainder for items
+// not asked. By linearity of expectation this is exact and needs no separate model:
+//   this total = sum(asked x_i)  +  sum(unasked E[x_j | posterior]),
+// where the posterior is the SAME state.priors.G / state.priors.Depression grid the score card reads
+// (severityResult() above). No IRT-information or Shapley "importance" score is used -- see NEXT_STEPS_v14-v17.md
+// Part C.1 for why those were rejected (harder to explain, easy to over-interpret).
+// IMPORTANT, found while testing (not in the original plan): this total is NOT numerically identical to
+// severityResult()'s posterior mean of the full 14-item sum, even though both read the same posterior. That
+// figure treats every one of the 14 items -- including the ones actually asked -- as still governed by the
+// item model at each grid point ("what would a fresh answer to all 14 have looked like"), so it never plugs
+// in an asked item's exact reported value the way this decomposition does; the two are different, both exact,
+// definitions of "the total". See webapp/verification/test_score_decomposition.py, and decompositionSectionHtml()
+// below for how the on-screen wording keeps the two figures from being read as the same number.
+// ---------------------------------------------------------------------------------------------------------------
+// Plain JSON on purpose (double-quoted keys, no trailing comma), like CONTENT_CONSTRAINTS above -- so
+// selection-engine/scripts/engine_5domain.py can read this exact block by regex + json.loads instead of
+// re-typing the item pairs, the same "single source of truth" pattern the rest of this file already uses.
+const DEPRESSION_CONTENT_AREAS = [
+  {"key": "dysphoria", "label": "Sad, down-hearted", "items": [13, 26], "criterion": "Depressed mood", "core": true},
+  {"key": "anhedonia", "label": "No positive feeling or enjoyment", "items": [3, 24], "criterion": "Loss of interest / pleasure", "core": true},
+  {"key": "interest", "label": "Lost interest, can't get enthusiastic", "items": [16, 31], "criterion": "Loss of interest / pleasure", "core": true},
+  {"key": "self_deprecation", "label": "Worthless, not worth much", "items": [17, 34], "criterion": "Worthlessness / guilt", "core": false},
+  {"key": "hopelessness", "label": "Nothing to look forward to", "items": [10, 37], "criterion": "Associated feature, not a core criterion", "core": false},
+  {"key": "devaluation", "label": "Life meaningless or not worthwhile", "items": [21, 38], "criterion": "Associated feature -- not suicidal ideation", "core": false},
+  {"key": "inertia", "label": "Can't get going, no initiative", "items": [5, 42], "criterion": "Energy (approximate)", "core": false}
+];
+const DECOMP_COLORS = ["var(--teal)", "var(--lav)", "var(--blue)", "var(--amber)", "var(--brick)", "var(--teal-deep)", "var(--lav-deep)"];
+
+// v16 (NEXT_STEPS_v14-v17.md Part B.4): the "criteria coverage map" -- for each DSM-5 concept below, was it
+// ASKED this session, and (where the concept is a yes/no criterion rather than a specifier) was it ENDORSED.
+// "Facts only... not a diagnosis" (B.4's own header text, reused verbatim on the results screen). References
+// DEPRESSION_CONTENT_AREAS/CONTENT_CONSTRAINTS by key/name rather than repeating item numbers, so it cannot
+// silently drift from those if either is edited. `kind` tells criteriaCoverage() which resolver to use:
+//   content_areas / content_group: any of the referenced items' asked response >= ceil(that item's own category
+//     count / 2) -- generalises the roadmap's "DASS 0-3, >=2" rule (ceil(4/2)=2, exactly that rule) to
+//     PROMIS-scored items too (A8), stated as "the top half of that item's response scale".
+//   core_item: the unscored core question (core_symptoms.js), same ceil(n_cat/2) rule.
+//   domain_level: no single canonical item exists for this criterion (A4) -- uses the domain's own theta
+//     against the SAME elevated-level threshold the results screen already reports elsewhere, clearly a
+//     DIFFERENT kind of rule (a model estimate, not a literal answer) from every other row here.
+//   timing_item: Block H (timing_module.js); endorsed_options come from that item's own config.
+//   context_pathway: a Block A-G pathway flag (context_module.js) was positive.
+//   safety_category: the unconditional safety block already asks this (never "not asked").
+//   not_asked: an honest gap -- this tool does not ask about it at all.
+// Wrapped as {status, items} (not a bare array) so it carries an UNSIGNED marker the same way every other
+// module constant does (CONTEXT_MODULE.status, TIMING_MODULE.status, SENSITIVE_MODULE.status) -- check_deploy_ready.mjs
+// blocks on this field, not on a comment. Provisional and UNSIGNED: the item/criterion mapping and the
+// endorsement threshold need clinician sign-off (NEXT_STEPS_v14-v17.md Part G item 5) before this is described
+// as anything more than a facts-only checklist.
+const CRITERIA_COVERAGE_MAP = {
+ "status": "UNSIGNED - DO NOT DEPLOY",
+ "items": [
+  {"key": "A1", "criterion": "A1: Depressed mood", "kind": "content_areas", "areas": ["dysphoria"]},
+  {"key": "A2", "criterion": "A2: Diminished interest or pleasure", "kind": "content_areas", "areas": ["anhedonia", "interest"]},
+  {"key": "A3", "criterion": "A3: Appetite or weight change", "kind": "core_item", "item_id": "PHQ9_5"},
+  {"key": "A4", "criterion": "A4: Sleep disturbance (insomnia or hypersomnia)", "kind": "domain_level", "domain": "Sleep", "elevated_at_least": 0.15},
+  {"key": "A5", "criterion": "A5: Psychomotor agitation or retardation", "kind": "content_group", "content_group": "Psychomotor / agitation"},
+  {"key": "A6", "criterion": "A6: Fatigue or loss of energy", "kind": "content_areas", "areas": ["inertia"]},
+  {"key": "A7", "criterion": "A7: Worthlessness or excessive guilt", "kind": "content_areas", "areas": ["self_deprecation"]},
+  {"key": "A8", "criterion": "A8: Diminished ability to think or concentrate", "kind": "content_group", "content_group": "Concentration"},
+  {"key": "A9", "criterion": "A9: Recurrent thoughts of death or suicidal ideation", "kind": "safety_category", "safety_category": "maternal_self_harm"},
+  {"key": "onset", "criterion": "Peripartum-onset specifier", "kind": "timing_item", "item_id": "H1"},
+  {"key": "duration", "criterion": "Criterion A: duration (most of the day, nearly every day, 2+ weeks)", "kind": "timing_item", "item_id": "H2"},
+  {"key": "impairment", "criterion": "Criterion B: functional impairment", "kind": "timing_item", "item_id": "H3"},
+  {"key": "C", "criterion": "Criterion C: not attributable to a medical condition or substance", "kind": "context_pathway", "item_ids": ["G1", "G2", "G3"]},
+  {"key": "D", "criterion": "Criterion D: not better explained by another psychotic disorder", "kind": "not_asked"},
+  {"key": "E", "criterion": "Criterion E: no history of a manic or hypomanic episode", "kind": "context_pathway", "item_ids": ["B6"]}
+ ]
+};
+function ceilHalf(n) { return Math.ceil(n / 2); }
+// Mirrors selection-engine/scripts/engine_5domain.py's criteria_coverage() exactly (checked by the parity harness).
+function criteriaCoverage() {
+  const askedByN = {};
+  state.asked.forEach(a => { askedByN[a.n] = a.response; });
+  return CRITERIA_COVERAGE_MAP.items.map(row => {
+    let asked = false, endorsed = null;
+    if (row.kind === "content_areas" || row.kind === "content_group") {
+      let pool;
+      if (row.kind === "content_areas") {
+        const keys = new Set(row.areas);
+        pool = DEPRESSION_CONTENT_AREAS.filter(a => keys.has(a.key)).flatMap(a => a.items);
+      } else {
+        const group = CONTENT_CONSTRAINTS.find(g => g.name === row.content_group);
+        pool = group ? group.items : [];
+      }
+      const hits = pool.filter(n => n in askedByN);
+      asked = hits.length > 0;
+      endorsed = hits.length ? hits.some(n => askedByN[n] >= ceilHalf((ITEM_BY_N[n].labels_en || RESPONSE_LABELS).length)) : null;
+    } else if (row.kind === "core_item") {
+      asked = !!(state.core && state.core.asked.includes(row.item_id));
+      if (asked) endorsed = state.core.answers[row.item_id] >= ceilHalf(CORE_SYMPTOMS.labels.length);
+    } else if (row.kind === "domain_level") {
+      asked = true;
+      endorsed = state.theta[row.domain] >= row.elevated_at_least;
+    } else if (row.kind === "timing_item") {
+      asked = !!(state.timing && state.timing.asked.includes(row.item_id));
+      if (asked) {
+        const titem = TIMING_MODULE.items.find(i => i.id === row.item_id);
+        endorsed = titem.endorsed_options ? titem.endorsed_options.includes(state.timing.answers[row.item_id]) : null;
+      }
+    } else if (row.kind === "context_pathway") {
+      asked = !!(state.context && row.item_ids.some(id => state.context.asked.includes(id)));
+      endorsed = !!(state.context && state.context.pathwayFlags.some(f => row.item_ids.includes(f.id)));
+    } else if (row.kind === "safety_category") {
+      asked = true;
+      endorsed = state.escalationCategories.has(row.safety_category);
+    } else if (row.kind === "not_asked") {
+      asked = false; endorsed = null;
+    }
+    return { key: row.key, criterion: row.criterion, asked, endorsed };
+  });
+}
+
+// E[x_j | posterior]: the same posterior grid severityResult() uses, weighted-summed over this one item's
+// graded-response category probabilities. Exact, not sampled.
+function expectedItemScore(item) {
+  const wG = state.priors.G, wS = state.priors.Depression, n = QUAD.length;
+  let ex = 0;
+  for (let gi = 0; gi < n; gi++) {
+    const wg = wG[gi];
+    if (wg === 0) continue;
+    for (let si = 0; si < n; si++) {
+      const w = wg * wS[si];
+      if (w === 0) continue;
+      const p = grmProbs(QUAD[gi], QUAD[si], item);
+      for (let k = 0; k < p.length; k++) ex += w * p[k] * k;
+    }
+  }
+  return ex;
+}
+function scoreDecomposition() {
+  const areas = DEPRESSION_CONTENT_AREAS.map((area, i) => {
+    const items = area.items.map(n => {
+      const item = ITEM_BY_N[n], asked = state.asked.find(a => a.n === n);
+      return asked
+        ? { n, text: item.text_en, asked: true, response: asked.response }
+        : { n, text: item.text_en, asked: false, estimated: expectedItemScore(item) };
+    });
+    const observed = items.filter(it => it.asked).reduce((a, it) => a + it.response, 0);
+    const askedCount = items.filter(it => it.asked).length;
+    const estimated = items.filter(it => !it.asked).reduce((a, it) => a + it.estimated, 0);
+    return { ...area, color: DECOMP_COLORS[i % DECOMP_COLORS.length], items, observed, observedMax: askedCount * 3, askedCount, estimated };
+  });
+  return { areas, observedTotal: areas.reduce((a, ar) => a + ar.observed, 0), estimatedTotal: areas.reduce((a, ar) => a + ar.estimated, 0) };
+}
+// Inline SVG donut (no external chart library -- connect-src is 'none'). Each area's slice is sized by its
+// OBSERVED points only; every unasked item's estimated contribution is pooled into one neutral, hatched slice
+// so the chart never passes model output off as something she said.
+function donutSvg(slices, centerTop, centerBottom, ariaLabel) {
+  const size = 176, r = 62, cx = 88, cy = 88, thick = 26;
+  const total = slices.reduce((a, s) => a + s.value, 0);
+  const circumference = 2 * Math.PI * r;
+  let offset = 0;
+  const arcs = total > 0 ? slices.filter(s => s.value > 0).map(s => {
+    const len = (s.value / total) * circumference;
+    const dash = `${len.toFixed(2)} ${(circumference - len).toFixed(2)}`;
+    const rot = (offset / circumference) * 360 - 90;
+    offset += len;
+    return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke-width="${thick}" stroke-dasharray="${dash}" transform="rotate(${rot.toFixed(2)} ${cx} ${cy})" style="stroke:${s.pattern ? "url(#decompHatch)" : s.color}"></circle>`;
+  }).join("") : "";
+  return `<svg viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" role="img" aria-label="${ariaLabel}">
+    <defs><pattern id="decompHatch" width="6" height="6" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+      <rect width="6" height="6" style="fill:var(--bg-soft)"></rect><line x1="0" y1="0" x2="0" y2="6" stroke-width="2" style="stroke:var(--ink-faint)"></line>
+    </pattern></defs>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke-width="${thick}" style="stroke:var(--line)"></circle>
+    ${arcs}
+    <text x="${cx}" y="${cy - 2}" text-anchor="middle" style="font-family:var(--serif);font-size:26px;fill:var(--ink)">${centerTop}</text>
+    <text x="${cx}" y="${cy + 18}" text-anchor="middle" style="font-family:var(--sans);font-size:10px;fill:var(--ink-soft)">${centerBottom}</text>
+  </svg>`;
+}
+function decompositionSectionHtml() {
+  if (!sevAvailable()) return "";
+  const D = scoreDecomposition(), cfg = SEVERITY_BANDS;
+  const grand = D.observedTotal + D.estimatedTotal;
+  // Placed against the published band edges by direct numeric comparison -- NOT the same figure as
+  // severityResult()'s band (that one is a posterior-predictive probability over all 14 items, including
+  // the ones actually asked; this total instead fixes the asked items at what she actually reported, which
+  // is a different, also-exact quantity -- see webapp/verification/test_score_decomposition.py). The two
+  // can occasionally place a session in adjacent bands; each card only ever compares against its own number.
+  const band = (cfg.bands.find(b => grand >= b.min && grand <= b.max) || cfg.bands[cfg.bands.length - 1]).label;
+  const totalAskedItems = D.areas.reduce((a, ar) => a + ar.askedCount, 0);
+  if (totalAskedItems === 0) {
+    return `<div class="res-section"><h2>What makes up this score</h2>
+      <div class="res-card"><p class="res-sub" style="margin:0">No depression-symptom points were reported this session (every point above is estimated from the other questions asked).</p></div></div>`;
+  }
+  const showReportedOnly = state.decompShowReportedOnly;
+  const slices = D.areas.map(ar => ({ value: ar.observed, color: ar.color }));
+  if (!showReportedOnly) slices.push({ value: D.estimatedTotal, color: "var(--ink-faint)", pattern: true });
+  // Centre text is kept to a bare number + short tag (SVG text does not wrap); the full sentence is set as
+  // ordinary HTML next to the donut instead, where normal text flow can wrap it.
+  const centerTop = showReportedOnly ? D.observedTotal.toFixed(1) : grand.toFixed(1);
+  const centerBottom = showReportedOnly ? "reported only" : `${band} range`;
+  const donut = donutSvg(slices, centerTop, centerBottom, "Donut chart of the Aggregate PPD Score's content areas");
+  const caption = showReportedOnly
+    ? `Reported points only: <b>${D.observedTotal.toFixed(1)}</b> of the ${grand.toFixed(1)}-point estimated total`
+    : `Estimated DASS-42 Depression total: <b>${grand.toFixed(1)}</b> → <b>${band}</b> range`;
+  const sorted = [...D.areas].sort((a, b) => b.observed - a.observed || (b.core - a.core));
+  const rows = sorted.map(ar => {
+    const detail = ar.askedCount
+      ? ar.items.filter(it => it.asked).map(it => `<div>"${it.text}" → ${RESPONSE_LABELS[it.response]}</div>`).join("")
+      : `<div>Not asked this session -- estimated only.</div>`;
+    return `<li class="decomp-row">
+      <span class="decomp-swatch" style="background:${ar.color}"></span>
+      <div class="decomp-row-main">
+        <span class="decomp-row-label">${ar.label}</span><span class="decomp-row-crit">${ar.criterion}</span>
+        <div class="decomp-row-detail">${detail}</div>
+      </div>
+      <span class="decomp-row-pts">${ar.observed}${ar.askedCount ? " / " + ar.observedMax : ""}</span>
+    </li>`;
+  }).join("");
+  const toggleLabel = showReportedOnly ? "Show full estimated score" : "Show reported answers only";
+  const note = totalAskedItems === 1 ? `<p class="res-sub">Based on one question. The estimated part dominates.</p>` : "";
+  return `<div class="res-section">
+    <h2>What makes up this score${footnote("Suggested starting points for the conversation, not a treatment plan. Each slice is sized by points actually reported; the hatched slice is model-estimated for questions not asked.")}${footnote("This total fixes your actual answers at what you reported and estimates only the questions not asked, so it is a different (also exact) calculation from the probability-based level shown above. The range name uses the same published band edges, but the two can occasionally differ by one band near an edge.")}</h2>
+    ${note}
+    <p class="res-sub" style="margin:0 0 12px">${caption}</p>
+    <div class="decomp-wrap">
+      <div class="decomp-donut">${donut}
+        ${!showReportedOnly ? `<div class="decomp-est-key"><span class="decomp-swatch" style="background:var(--ink-faint)"></span>Estimated for questions not asked (${D.estimatedTotal.toFixed(1)} pts)</div>` : ""}
+        <button type="button" class="decomp-toggle" id="decompToggle">${toggleLabel}</button>
+      </div>
+      <div class="decomp-legend">
+        <p class="res-sub" style="margin:0 0 6px">Suggested starting points for the conversation (not a treatment plan)</p>
+        <ul class="decomp-list">${rows}</ul>
+      </div>
+    </div>
+  </div>`;
+}
+function wireDecompositionToggle() {
+  const btn = document.getElementById("decompToggle");
+  if (btn) btn.onclick = () => { state.decompShowReportedOnly = !state.decompShowReportedOnly; renderResults(); };
+}
+
 // The other screening results of this session, listed as they stand. They do not change the level above (no weights: there is no
 // postpartum data to set any); a clinician reads them together with it. Facts only.
 function supportingFindingsHtml() {
   const rows = [];
-  if (state.pp && state.pp.subscales) {
-    const M = POSTPARTUM_MODULE, high = Object.entries(state.pp.subscales).filter(([k, r]) => r.status === "high").map(([k]) => M.subscales[k].name);
-    rows.push(["Bonding and parenting", high.length ? `<b>${high.length} of ${Object.keys(M.subscales).length}</b> areas at or above the published cut-off: ${high.join("; ")}` : "No area at or above the published cut-off"]);
-  }
+  // Bonding and parenting has its own top-level card now (Part D.2, v14) -- see postpartumResultsHtml(),
+  // placed directly after the score decomposition. Not repeated here so it isn't shown twice.
   const above = DOMAINS.filter(d => d !== "Depression" && levelLabel(state.theta[d]).indexOf("elevated") >= 0).map(d => `${d} (${levelLabel(state.theta[d]).toLowerCase()})`);
   rows.push(["Anxiety, stress, fatigue, sleep", above.length ? `Above the typical range on their own: <b>${above.join(", ")}</b>` : "None above the typical range"]);
   if (state.core && state.core.asked.length) {
@@ -1353,6 +1805,137 @@ function supportingFindingsHtml() {
       <div class="rc-meta" style="margin:0 0 4px">Listed as they stand. They do not change the level above.</div>
       ${rows.map(([k, v]) => `<div class="sf-row"><span>${k}</span><span>${v}</span></div>`).join("")}
     </div>`;
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// Maternal context module (v15, context_module.js): fixed-order background/history questions, run after the
+// safety block and before the adaptive phase (NEXT_STEPS_v14-v17.md Part B.5). Never changes the Aggregate PPD
+// Score (Part A.1) -- only routing (M0: skip the postpartum module if pregnant), the results-screen "Background
+// and context" card (M1), and -- only through CONTEXT_RISK_STOPPING -- how many items the adaptive engine and
+// PBQ module ask (M2). Reference implementation: selection-engine/scripts/context_module.py (parity-tested).
+// ---------------------------------------------------------------------------------------------------------------
+const CTX_UNSIGNED_MARKER = "UNSIGNED - DO NOT DEPLOY";
+function ctxAvailable() { return typeof CONTEXT_MODULE !== "undefined"; }
+function ctxItem(id) { return CONTEXT_MODULE.items.find(i => i.id === id); }
+function ctxAnswerText(item, ans) { return item.type === "multi" ? ans.map(i => item.options[i]) : item.options[ans]; }
+function ctxSkipped(item, answers) {
+  if (CONTEXT_MODULE_CORE_ONLY.enabled && !(CONTEXT_MODULE.core_item_ids || []).includes(item.id)) return true;
+  const sk = item.skip_if;
+  if (!sk) return false;
+  const prior = answers[sk.item];
+  if (prior === undefined) return true;   // the referenced item was itself skipped/unanswered -> this one is too
+  const priorItem = ctxItem(sk.item);
+  const priorText = typeof prior === "number" ? priorItem.options[prior] : prior;
+  return sk.in.includes(priorText);
+}
+function beginContext() {
+  if (!ctxAvailable()) { state.context = null; state.phase = "value"; advance(); return; }
+  state.phase = "context";
+  state.ctx = { queue: CONTEXT_MODULE.items.map(i => i.id), answers: {}, current: null };
+  ctxNext();
+}
+function ctxNext() {
+  const c = state.ctx;
+  while (c.queue.length) {
+    const id = c.queue.shift();
+    if (ctxSkipped(ctxItem(id), c.answers)) continue;
+    c.current = id;
+    renderContextItem(id);
+    return;
+  }
+  finishContext();
+}
+function finishContext() {
+  state.context = contextResult(state.ctx.answers);
+  state.phase = "value";
+  advance();
+}
+function renderContextItem(id) {
+  const item = ctxItem(id);
+  screenEl.innerHTML = `
+    <div class="card">
+      <div class="question-inner">
+        <h1 class="q">${item.question}</h1>
+        <div class="options" id="optsWrap"></div>
+      </div>
+    </div>
+  `;
+  const commitCtx = (value, wasFast) => { state.ctx.answers[item.id] = value; if (wasFast) state.fastResponseCount++; ctxNext(); };
+  if (item.type === "multi") {
+    const wrap = document.getElementById("optsWrap");
+    // Initialised from any answer already stored for this item (e.g. after "Previous question" -- see goBack(),
+    // which skips its generic reselect-click for multi-select items and relies on this instead), so the earlier
+    // answer is shown as selected without needing to replay a click per option.
+    const selected = new Set(state.ctx.answers[item.id] || []);
+    const noneIdx = item.risk_if_any_except;
+    pendingAnswer = selected.size ? { idx: [...selected].sort((a, b) => a - b), onPick: commitCtx } : null;
+    item.options.forEach((label, idx) => {
+      const btn = document.createElement("button");
+      btn.className = "opt" + (selected.has(idx) ? " selected" : "");
+      btn.innerHTML = `<span class="option-circle"></span><span>${label}</span>`;
+      btn.onclick = () => {
+        if (idx === noneIdx) { selected.clear(); selected.add(idx); }
+        else { selected.delete(noneIdx); if (selected.has(idx)) selected.delete(idx); else selected.add(idx); }
+        [...wrap.children].forEach((el, i) => el.classList.toggle("selected", selected.has(i)));
+        pendingAnswer = selected.size ? { idx: [...selected].sort((a, b) => a - b), onPick: commitCtx } : null;
+        refreshNav();
+      };
+      wrap.appendChild(btn);
+    });
+    refreshNav();
+  } else {
+    state.currentLabels = item.options;
+    renderOptions((idx, wasFast) => commitCtx(idx, wasFast));
+  }
+  state.itemShownAt = performance.now();
+}
+// Mirrors selection-engine/scripts/context_module.py's run_context() exactly (checked by the parity harness).
+function contextResult(answers) {
+  const M = CONTEXT_MODULE, itemsById = {};
+  M.items.forEach(i => { itemsById[i.id] = i; });
+  const asked = M.items.filter(i => !ctxSkipped(i, answers)).map(i => i.id);
+  const factorsPresent = [], protectivePresent = [], pathwayFlags = [], uspstfCriteriaMet = [];
+  let careContext = null;
+  asked.forEach(id => {
+    const item = itemsById[id], ans = answers[id];
+    const role = item.role || (item.tier ? "risk" : null);
+    let riskPresent;
+    if (item.type === "multi") {
+      const selected = new Set(ans);
+      riskPresent = [...selected].some(i => i !== item.risk_if_any_except);
+    } else {
+      riskPresent = (item.risk_options || []).includes(ans);
+    }
+    if (role === "pathway") { if (riskPresent) pathwayFlags.push({ id, question: item.question, answer: ctxAnswerText(item, ans) }); return; }
+    if (role === "care_context") { if (riskPresent) careContext = { id, question: item.question, answer: ctxAnswerText(item, ans) }; return; }
+    if (role === "routing") return;
+    if (item.points) return;   // OSSS-3 items: handled separately below (a summed score, not a per-item flag)
+    if (riskPresent && item.tier) factorsPresent.push({ id, tier: item.tier, question: item.question, answer: ctxAnswerText(item, ans), evidence: item.evidence || "" });
+    if (item.type !== "multi" && (item.protective_options || []).includes(ans)) protectivePresent.push({ id, question: item.question, answer: ctxAnswerText(item, ans) });
+    if (item.uspstf_label && riskPresent) uspstfCriteriaMet.push(item.uspstf_label);
+  });
+  const osss3 = M.osss3;
+  let osss3Total = null, osss3Band = null;
+  if (osss3.items.every(n => n in answers)) {
+    osss3Total = osss3.items.reduce((a, n) => a + itemsById[n].points[answers[n]], 0);
+    if (osss3Total <= osss3.poor_max) {
+      osss3Band = "poor";
+      factorsPresent.push({ id: "OSSS-3", tier: 1, question: "Oslo Social Support Scale (3 items)", answer: `Total ${osss3Total} of 14 -- poor support`, evidence: "Poor social support RR 3.57 [Xu 2026]" });
+    } else if (osss3Total <= osss3.moderate_max) {
+      osss3Band = "moderate";
+    } else {
+      osss3Band = "strong";
+      protectivePresent.push({ id: "OSSS-3", question: "Oslo Social Support Scale (3 items)", answer: `Total ${osss3Total} of 14 -- strong support` });
+    }
+  }
+  const a1 = answers.A1, a1Text = a1 !== undefined ? itemsById.A1.options[a1] : null;
+  const pregnant = a1Text === "Pregnant";
+  const outsideWindow = a1Text === "Had a baby more than 12 months ago";
+  const m2Risk = CONTEXT_RISK_STOPPING.trigger.some(id => asked.includes(id) && (itemsById[id].risk_options || []).includes(answers[id]));
+  return {
+    asked, pregnant, outsideWindow, factorsPresent, protectivePresent, pathwayFlags, careContext,
+    uspstfCriteriaMet, uspstfFlag: uspstfCriteriaMet.length > 0, osss3Total, osss3Band, m2Risk,
+  };
 }
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -1411,12 +1994,19 @@ function ppAvailable() { return typeof POSTPARTUM_MODULE !== "undefined"; }
 function ppItem(n) { return POSTPARTUM_MODULE.items.find(i => i.n === n); }
 
 function beginPostpartum() {
-  if (!ppAvailable()) { state.pp = null; state.phase = "done"; renderResults(); return; }
+  // M0 (v15): a pregnant respondent never runs the bonding module -- the PBQ presupposes a born infant. Still
+  // proceeds to Block H/S (v16, beginTiming()) -- pregnancy routes around the bonding module only, not the
+  // whole rest of the session (mirrors engine_5domain.run_session(), which never gates timing/sensitive on it).
+  if (!ppAvailable() || (state.context && state.context.pregnant)) { state.pp = null; beginTiming(); return; }
   state.phase = "postpartum";
   state.pp = { stage: "screener", queue: POSTPARTUM_MODULE.screener.items.map(s => s.n), asked: [], scores: {}, current: null,
-               positive: [], expanded: [], engineElevated: null, subscales: null, rulesFired: [] };
+               positive: [], expanded: [], engineElevated: null, subscales: null, rulesFired: [],
+               introShown: false, expansionNoticeFor: null, expansionNoticeShown: false };
   ppNext();
 }
+// Friendly, short names for the on-screen expansion notice (Part D.1) -- the subscale's own clinical name
+// ("Rejection and pathological anger") is kept for the results screen but would read oddly mid-session.
+const PP_SUBSCALE_SHORT = { general: "feelings towards your baby", rejection: "feelings of frustration or anger", anxiety: "worries about your baby" };
 
 function ppNext() {
   const pp = state.pp;
@@ -1431,11 +2021,17 @@ function ppNext() {
 function ppExpandFromScreener() {
   const M = POSTPARTUM_MODULE, scr = M.screener, pp = state.pp;
   pp.engineElevated = scr.engine_domains.some(d => state.theta[d] >= scr.engine_elevated_theta);
-  const threshold = pp.engineElevated ? scr.positive_score_at_least_if_engine_elevated : scr.positive_score_at_least;
+  // v15, M2 (CONTEXT_RISK_STOPPING.pbq_expand_threshold): reuse the SAME lower (>=1) threshold already used
+  // when the engine itself found Depression/Anxiety elevated, when the context module found a Tier-1 history
+  // item positive instead -- "M2 extends that one tested pattern" (NEXT_STEPS_v14-v17.md Part A.3).
+  pp.contextOrEngineElevated = pp.engineElevated || (state.context && state.context.m2Risk);
+  const threshold = pp.contextOrEngineElevated ? scr.positive_score_at_least_if_engine_elevated : scr.positive_score_at_least;
+  pp.expansionThreshold = threshold;   // stashed for the results-screen trace (ppTraceHtml) -- read, not recomputed
   pp.positive = scr.items.filter(s => pp.scores[s.n] >= threshold).map(s => s.n);
   const positiveSubscales = new Set(scr.items.filter(s => pp.scores[s.n] >= threshold).map(s => s.subscale));
   pp.expanded = Object.keys(M.subscales).filter(k => positiveSubscales.has(k));
   pp.expanded.forEach(k => M.subscales[k].items.forEach(n => { if (!pp.asked.includes(n) && !pp.queue.includes(n)) pp.queue.push(n); }));
+  pp.expansionNoticeFor = pp.expanded.length ? pp.expanded.map(k => PP_SUBSCALE_SHORT[k] || M.subscales[k].name) : null;
   ppCurtail();
 }
 
@@ -1455,9 +2051,23 @@ function ppCurtail() {
 }
 
 function renderPostpartumItem(n) {
-  const M = POSTPARTUM_MODULE, item = ppItem(n);
+  const M = POSTPARTUM_MODULE, item = ppItem(n), pp = state.pp;
   state.currentLabels = M.labels;
+  // Section intro (Part D.1): shown once, before the first postpartum question, so this part of the session
+  // reads as its own distinct stage rather than more of the same adaptive questionnaire.
+  let introHtml = "";
+  if (!pp.introShown) {
+    introHtml = `<div class="deep-tier-note" style="margin-bottom:14px">
+      The next questions are about you and your baby. They come from the Postpartum Bonding Questionnaire
+      (Brockington, 2006), a questionnaire used to check how mothers and babies are getting on.
+    </div>`;
+    pp.introShown = true;
+  } else if (pp.stage === "expanded" && pp.expansionNoticeFor && !pp.expansionNoticeShown) {
+    introHtml = `<div class="deep-tier-note" style="margin-bottom:14px">A few more questions about ${pp.expansionNoticeFor.join(" and ")} will help give a clearer picture.</div>`;
+    pp.expansionNoticeShown = true;
+  }
   screenEl.innerHTML = `
+    ${introHtml}
     <div class="card">
       <div class="question-inner">
         <p style="margin:0 0 8px;font-size:14px;color:var(--ink-soft)">In your recent experience:</p>
@@ -1499,12 +2109,132 @@ function ppFinish() {
   const ctx = { flags, engine_elevated: pp.engineElevated, any_flag_high: Object.values(flags).some(v => v === "high"), safety_categories: state.escalationCategories };
   pp.subscales = subs;
   pp.rulesFired = M.rules.filter(r => r.when.all.every(c => ppCondition(c, ctx))).map(r => r.id);
+  beginTiming();
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// Block H, timing/duration/impairment (v16, timing_module.js, NEXT_STEPS_v14-v17.md Part B.4). Runs after the
+// postpartum module, before Block S -- ONLY when Depression or Anxiety's final theta is "Somewhat elevated" or
+// higher (the SAME levelLabel() threshold the results screen already reports). All 3 items are asked whenever
+// triggered at all (no skip logic). Feeds the criteria coverage map above; never the Aggregate PPD Score.
+// Reference implementation: selection-engine/scripts/timing_module.py (parity-tested).
+// ---------------------------------------------------------------------------------------------------------------
+function tmAvailable() { return typeof TIMING_MODULE !== "undefined"; }
+function tmTriggered() { return tmAvailable() && TIMING_MODULE.trigger_domains.some(d => state.theta[d] >= TIMING_MODULE.trigger_theta_at_least); }
+function beginTiming() {
+  if (!tmTriggered()) { state.timing = null; beginSensitive(); return; }
+  state.phase = "timing";
+  state.timing = { queue: TIMING_MODULE.items.map(i => i.id), answers: {}, asked: [], current: null };
+  timingNext();
+}
+function timingNext() {
+  const t = state.timing;
+  if (t.queue.length) { t.current = t.queue.shift(); renderTimingItem(t.current); return; }
+  beginSensitive();
+}
+function renderTimingItem(id) {
+  const item = TIMING_MODULE.items.find(i => i.id === id);
+  state.currentLabels = item.options;
+  screenEl.innerHTML = `
+    <div class="card">
+      <div class="question-inner">
+        <h1 class="q">${item.question}</h1>
+        <div class="options" id="optsWrap"></div>
+      </div>
+    </div>
+  `;
+  renderOptions((idx) => {
+    state.timing.answers[id] = idx;
+    state.timing.asked.push(id);
+    timingNext();
+  });
+  state.itemShownAt = performance.now();
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// Block S, sensitive experiences (v16, sensitive_module.js, NEXT_STEPS_v14-v17.md Part B.3/B.5). The LAST phase
+// before results, privacy-gated and optional. KEPT OFF BY DEFAULT (BLOCK_S_ENABLED.enabled = false): no real,
+// clinician-supplied referral route exists yet for S4 (Part G item 4). S0 is a hard gate -- any answer other than
+// one of its continue_options ends the block immediately; S1-S5 are then never asked (not defaulted to "no
+// risk"). Deliberately cannot trigger M2. Reference implementation: selection-engine/scripts/sensitive_module.py.
+// ---------------------------------------------------------------------------------------------------------------
+function smAvailable() { return typeof SENSITIVE_MODULE !== "undefined" && typeof BLOCK_S_ENABLED !== "undefined" && BLOCK_S_ENABLED.enabled; }
+function beginSensitive() {
+  if (!smAvailable()) { state.sensitive = null; state.phase = "done"; renderResults(); return; }
+  state.phase = "sensitive";
+  state.sensitive = { queue: SENSITIVE_MODULE.items.map(i => i.id), answers: {}, asked: [], current: null, privacyDeclined: false };
+  sensitiveNext();
+}
+function sensitiveNext() {
+  const s = state.sensitive;
+  if (!s.queue.length) { sensitiveFinish(); return; }
+  s.current = s.queue.shift();
+  renderSensitiveItem(s.current);
+}
+function renderSensitiveItem(id) {
+  const item = SENSITIVE_MODULE.items.find(i => i.id === id);
+  state.currentLabels = item.options;
+  screenEl.innerHTML = `
+    <div class="card">
+      <div class="question-inner">
+        <h1 class="q">${item.question}</h1>
+        <div class="options" id="optsWrap"></div>
+      </div>
+    </div>
+  `;
+  renderOptions((idx) => {
+    state.sensitive.answers[id] = idx;
+    state.sensitive.asked.push(id);
+    if (item.role === "gate" && !item.continue_options.includes(idx)) {
+      state.sensitive.privacyDeclined = true;
+      state.sensitive.queue = [];
+      sensitiveFinish();
+      return;
+    }
+    sensitiveNext();
+  });
+  state.itemShownAt = performance.now();
+}
+function sensitiveFinish() {
   state.phase = "done";
   renderResults();
 }
 
+// Recovers the raw response index (0..5, "Never".."Always") from the KEYED score stored in pp.scores, so the
+// "how we got here" trace and item table can show her actual answer, not the reverse-keyed number.
+function ppRawIndex(item, keyedScore) { return item.positive_wording ? 5 - keyedScore : keyedScore; }
+function ppTraceHtml(k, sub, r, pp) {
+  const M = POSTPARTUM_MODULE, scr = M.screener;
+  const screenerItem = scr.items.find(s => s.subscale === k);
+  const item = ppItem(screenerItem.n);
+  const rawIdx = ppRawIndex(item, pp.scores[screenerItem.n]);
+  const threshold = pp.expansionThreshold;
+  const steps = [`Screener item PBQ ${screenerItem.n} → answered "${M.labels[rawIdx]}" (${pp.scores[screenerItem.n]})`];
+  if (r.status === "screened_negative") {
+    steps.push(`below the expansion threshold (≥${threshold}${pp.engineElevated ? ", lowered because Depression/Anxiety was elevated" : ""}) → not expanded`);
+  } else {
+    const askedN = sub.items.filter(n => pp.asked.includes(n)).length;
+    steps.push(`subscale expanded (threshold ≥${threshold}${pp.engineElevated ? ", lowered because Depression/Anxiety was elevated" : ""})`);
+    steps.push(`${askedN} item${askedN === 1 ? "" : "s"} asked`);
+    steps.push(r.complete ? `score ${r.score}/${sub.range[1]}` : "curtailed before every item was asked (result was already certain)");
+    steps.push(`cut-off ${r.cutoff_high} → ${r.status === "high" ? "at or above" : "not high"}`);
+  }
+  return `<div class="pp-trace">${steps.join(" → ")}</div>`;
+}
+function ppItemTableHtml(sub, pp) {
+  const M = POSTPARTUM_MODULE;
+  const rows = sub.items.filter(n => pp.asked.includes(n)).map(n => {
+    const item = ppItem(n), keyed = pp.scores[n], rawIdx = ppRawIndex(item, keyed);
+    return `<tr><td>${item.text}</td><td>${M.labels[rawIdx]}</td><td>${keyed}</td></tr>`;
+  }).join("");
+  if (!rows) return "";
+  return `<details class="pp-item-table"><summary>Show the questions asked (${sub.items.filter(n => pp.asked.includes(n)).length})</summary>
+    <table><tbody>${rows}</tbody></table></details>`;
+}
 // Results section for the module. Only FACTS are shown unless a clinician has supplied and signed the wording for a
 // fired rule (feedback slots in postpartum_module.js); no interpretation or advice is authored here.
+// v14 (Part D.2): promoted to its own top-level card, with a factual "how we got here" trace and an
+// expandable item table per subscale, so the rule-based logic is transparent rather than just a score.
 function postpartumResultsHtml() {
   if (!ppAvailable()) return `<div class="res-section"><p class="res-sub">The bonding and parenting questions could not be loaded in this session, so that part was not assessed.</p></div>`;
   if (!state.pp || !state.pp.subscales) return "";
@@ -1529,16 +2259,108 @@ function postpartumResultsHtml() {
         body = `<div class="rc-meta">Questions stopped once the result was certain, so there is no exact score. ${cutTxt}</div>`;
       }
     }
-    return `<div class="res-card"><div class="rc-top"><span class="rc-name">${sub.name}</span>${pill}</div>${body}</div>`;
+    return `<div class="res-card"><div class="rc-top"><span class="rc-name">${sub.name}</span>${pill}</div>${body}
+      ${ppTraceHtml(k, sub, r, pp)}${ppItemTableHtml(sub, pp)}</div>`;
   }).join("");
   const fired = pp.rulesFired.map(id => M.rules.find(r => r.id === id));
   const signed = fired.map(r => M.feedback[r.content_key]).filter(c => c && c.status !== PP_UNSIGNED_MARKER && c.heading && c.body);
   const signedHtml = signed.map(c => `<div class="flag-box" style="margin-top:12px"><b>${c.heading}</b><br>${c.body}</div>`).join("");
   const note = (fired.length && !signed.length)
     ? `<p class="res-sub" style="margin-top:12px">A clinician-approved explanation of these results has not been added to this research prototype yet.</p>` : "";
+  // Plain, user-facing wording of the module's own documented gap (M.not_scored / M.excluded_items hold the
+  // developer-facing reasons, including internal doc paths, so they are not interpolated into this screen).
+  const gaps = `<p class="pp-gap">A published PBQ subscale ("incipient abuse", items 18 and 24) is not assessed here: item 18 asks about a past act rather than screening for one, and item 24 (feelings of wanting to hurt the baby) is already asked in this session's safety questions.</p>`;
   return `<div class="res-section">
-    <h2>Bonding and parenting${footnote("Rule-based questions from a published questionnaire. They are separate from the adaptive scores above. Not a diagnosis.")}</h2>
-    ${cards}${signedHtml}${note}</div>`;
+    <h2>Bonding and parenting${footnote("Rule-based questions from a published questionnaire. They are separate from the adaptive scores above. Not a diagnosis.")}${footnote("The PBQ's four-factor structure has not been consistently replicated, and the original thresholds may be inadequate in community (non-specialist) samples. These cut-offs come from other populations; feedback text is awaiting clinician sign-off.")}</h2>
+    ${cards}${signedHtml}${note}${gaps}</div>`;
+}
+
+// M1 (v15, Part D.3): read-only "Background and context" card, placed after the bonding card. Factors grouped
+// by evidence tier, a USPSTF (2019) increased-risk flag naming the criteria met, pathway flags with an unsigned
+// clinician-action slot, and the fixed non-aggregation sentence. Never merged into the Aggregate PPD Score.
+function contextResultsHtml() {
+  if (!ctxAvailable()) return "";
+  const ctx = state.context;
+  if (!ctx) return "";
+  const tierLabel = { 1: "Stronger evidence", 2: "Moderate evidence", 3: "Weaker evidence" };
+  const byTier = { 1: [], 2: [], 3: [] };
+  ctx.factorsPresent.forEach(f => { (byTier[f.tier] || byTier[3]).push(f); });
+  const row = f => `<div class="sf-row"><span>${f.question}</span><span><b>${Array.isArray(f.answer) ? f.answer.join(", ") : f.answer}</b></span></div>`;
+  const tierBlock = t => byTier[t].length ? `<div class="sf-title" style="margin-top:10px">${tierLabel[t]}</div>${byTier[t].map(row).join("")}` : "";
+  const protectiveHtml = ctx.protectivePresent.length
+    ? `<div class="sf-title" style="margin-top:10px">Protective factors present</div>${ctx.protectivePresent.map(row).join("")}` : "";
+  const uspstfHtml = ctx.uspstfFlag
+    ? `<div class="flag-box">Meets one or more USPSTF (2019) criteria for increased risk of perinatal depression: ${ctx.uspstfCriteriaMet.join("; ")}.</div>`
+    : `<div class="rc-meta">Does not meet the USPSTF (2019) increased-risk criteria this session asked about.</div>`;
+  const pathwayHtml = ctx.pathwayFlags.length
+    ? `<div class="sf-title" style="margin-top:10px">Pathway flags</div>${ctx.pathwayFlags.map(f => row(f) + `<p class="res-sub" style="margin:2px 0 8px">A clinician-approved next step has not been added to this research prototype yet.</p>`).join("")}` : "";
+  const careHtml = ctx.careContext ? `<div class="rc-meta">Currently receiving care for emotional wellbeing: <b>Yes</b>.</div>` : "";
+  const windowNote = ctx.outsideWindow
+    ? `<div class="flag-box">This session is outside the usual postpartum window (more than 12 months since birth). Results are still shown, but the published postpartum-depression research this tool draws on mostly studies the first 12 months.</div>` : "";
+  // Honesty note (added 2026-09-27, with the shipped core-set default): an EMPTY "Moderate evidence" or
+  // "Weaker evidence" section above must never read as "this session found no such factors" when really this
+  // session simply did not ASK about most of them -- the shorter core-set default only asks the strongest-
+  // evidence factors plus 3 pathway flags, not the full Block A-G item list.
+  const coreOnlyNote = CONTEXT_MODULE_CORE_ONLY.enabled
+    ? `<div class="rc-meta" style="margin-top:8px">This session used a shorter core question set (the strongest-evidence background factors, plus thyroid/anaemia/substance-use screening). Most "Moderate evidence" and all "Weaker evidence" factors from the full published list were not asked this session -- their absence above does not mean they are not present.</div>` : "";
+  return `<div class="res-section">
+    <h2>Background and context${footnote("Describes background risk. It is never added to the Aggregate PPD Score above.")}</h2>
+    <div class="res-card">
+      ${windowNote}${uspstfHtml}${tierBlock(1)}${tierBlock(2)}${tierBlock(3)}${protectiveHtml}${pathwayHtml}${careHtml}
+      <div class="rc-meta" style="margin-top:8px">These factors describe background risk. They were not added to the Aggregate PPD Score.</div>
+      ${coreOnlyNote}
+    </div>
+  </div>`;
+}
+
+// v16, Part B.4: "facts only... not a diagnosis" checklist of which DSM-5 depression criteria this session
+// asked about and (where applicable) whether the answer met the provisional endorsement threshold.
+function criteriaCoverageHtml() {
+  if (typeof CRITERIA_COVERAGE_MAP === "undefined") return "";
+  const rows = criteriaCoverage();
+  const row = r => {
+    const parts = [r.asked ? "Asked" : "Not asked"];
+    if (r.asked && r.endorsed !== null) parts.push(r.endorsed ? "Endorsed" : "Not endorsed");
+    return `<div class="sf-row"><span>${r.criterion}</span><span><b>${parts.join(" · ")}</b></span></div>`;
+  };
+  return `<div class="res-section">
+    <h2>Criteria coverage map${footnote("Facts only: which DSM-5 depression criteria this session asked about, and whether the answer met a provisional endorsement threshold. Not a diagnosis -- only a clinical interview can diagnose depression. The item-to-criterion mapping and threshold are unsigned.")}</h2>
+    <div class="res-card">${rows.map(row).join("")}</div>
+  </div>`;
+}
+
+// v16, Block H: the timing/duration/impairment questions, asked only when Depression or Anxiety was elevated.
+function timingResultsHtml() {
+  if (!tmAvailable()) return "";
+  if (!state.timing) {
+    return `<div class="res-section"><p class="res-sub">Timing, duration and impairment questions were not asked this session: Depression and Anxiety were not elevated enough to trigger them.</p></div>`;
+  }
+  const rows = state.timing.asked.map(id => {
+    const item = TIMING_MODULE.items.find(i => i.id === id);
+    return `<div class="sf-row"><span>${item.question}</span><span><b>${item.options[state.timing.answers[id]]}</b></span></div>`;
+  }).join("");
+  return `<div class="res-section">
+    <h2>When, how long, how much it affected you${footnote("Asked because Depression or Anxiety was somewhat elevated or higher this session. Facts only; feeds the criteria coverage map above, never the Aggregate PPD Score.")}</h2>
+    <div class="res-card">${rows}</div>
+  </div>`;
+}
+
+// v16, Block S: privacy-gated, optional questions about safety at home. KEPT OFF BY DEFAULT -- renders nothing
+// unless BLOCK_S_ENABLED.enabled is true and the block actually ran this session.
+function sensitiveResultsHtml() {
+  if (!smAvailable() || !state.sensitive) return "";
+  const s = state.sensitive;
+  if (s.privacyDeclined) {
+    return `<div class="res-section"><h2>Safety at home</h2><p class="res-sub">These questions were skipped: you said you weren't able to answer them privately at the time.</p></div>`;
+  }
+  const factorRows = SENSITIVE_MODULE.items.filter(i => i.id !== "S0" && i.tier && s.asked.includes(i.id) && (i.risk_options || []).includes(s.answers[i.id]))
+    .map(i => `<div class="sf-row"><span>${i.question}</span><span><b>${i.options[s.answers[i.id]]}</b></span></div>`).join("");
+  const pathwayPositive = SENSITIVE_MODULE.items.some(i => i.role === "pathway" && s.asked.includes(i.id) && (i.risk_options || []).includes(s.answers[i.id]));
+  const pathwayHtml = pathwayPositive ? `<p class="res-sub" style="margin-top:8px">A clinician-approved next step has not been added to this research prototype yet.</p>` : "";
+  return `<div class="res-section">
+    <h2>Safety at home${footnote("Privacy-gated and optional. Never added to the Aggregate PPD Score and cannot change how many questions the adaptive engine asks.")}</h2>
+    <div class="res-card">${factorRows || '<div class="rc-meta">No factors present were reported.</div>'}${pathwayHtml}</div>
+  </div>`;
 }
 
 function levelLabel(mean) {
@@ -1550,21 +2372,12 @@ function levelLabel(mean) {
 function barColor(d) { return { Depression: "var(--teal)", Anxiety: "var(--lav)", Stress: "var(--blue)", Fatigue: "var(--amber)", Sleep: "var(--ink-faint)" }[d]; }
 function barWidth(mean) { return Math.round(Math.min(100, Math.max(4, (mean + 2) / 4 * 100))) + "%"; }
 
+// v14 order: score -> donut decomposition (directly under the score, Part C) -> bonding/parenting (promoted to
+// top-level, Part D.2) -> everything else the session touched, not folded into the score (Part C.3) -> flags ->
+// unscored core question -> footnotes. The old per-domain "Areas on their own" bars (which included Depression,
+// redundant with the donut above it) are superseded by beyondScoreSectionHtml().
 function renderResults() {
   state.resultsFootnotes = [];
-  const attributionHtml = DOMAINS.map(d => {
-    const askedInDomain = state.asked.filter(a => a.domain === d);
-    const mean = state.theta[d];
-    return `
-      <div class="result-domain">
-        <div class="rd-head">
-          <span class="rd-name">${d}</span>
-          <span class="rd-level">${levelLabel(mean)}</span>
-        </div>
-        <div class="result-bar"><i style="width:${barWidth(mean)};background:${barColor(d)}"></i></div>
-      </div>`;
-  }).join("");
-
   const qualityFlag = state.fastResponseCount >= 3
     ? `<div class="flag-box">This session is marked lower confidence because several answers were selected unusually quickly.</div>`
     : "";
@@ -1576,18 +2389,23 @@ function renderResults() {
     <div class="card">
       <h1 class="q" style="font-size:22px">Session summary</h1>
       <p style="font-size:13px;color:var(--ink-soft);margin-bottom:20px">
-        ${state.asked.length + (state.core ? state.core.asked.length : 0) + (state.pp ? state.pp.asked.length : 0)} questions completed
+        ${state.asked.length + (state.core ? state.core.asked.length : 0) + (state.pp ? state.pp.asked.length : 0) + (state.ctx ? Object.keys(state.ctx.answers).length : 0) + (state.timing ? state.timing.asked.length : 0) + (state.sensitive ? state.sensitive.asked.length : 0)} questions completed
       </p>
       ${severityCardHtml()}
-      ${areasSectionHtml()}
-      ${attributionHtml}
+      ${decompositionSectionHtml()}
+      ${postpartumResultsHtml()}
+      ${contextResultsHtml()}
+      ${criteriaCoverageHtml()}
+      ${timingResultsHtml()}
+      ${sensitiveResultsHtml()}
+      ${beyondScoreSectionHtml()}
       ${qualityFlag}
       ${budgetFlag}
       ${coreResultsHtml()}
-      ${postpartumResultsHtml()}
       ${footnotesHtml()}
     </div>
   `;
+  wireDecompositionToggle();
 }
 
 function startSession() {
@@ -1608,23 +2426,32 @@ function startSession() {
 // ---------------------------------------------------------------------------------------------------------------
 function renderCurrent() {
   if (state.phase === "safety") { renderSafetyItem(); return; }
+  if (state.phase === "context") { renderContextItem(state.ctx.current); return; }
   if (state.phase === "value") { renderValueItem(state.lastItem); return; }
   if (state.phase === "core") { renderCoreItem(state.core.current); return; }
   if (state.phase === "postpartum") { renderPostpartumItem(state.pp.current); return; }
+  if (state.phase === "timing") { renderTimingItem(state.timing.current); return; }
+  if (state.phase === "sensitive") { renderSensitiveItem(state.sensitive.current); return; }
 }
 function goBack() {
   if (!undoStack.length) return;
   const e = undoStack.pop();
   state = e.snap;
   renderCurrent();
-  const opts = document.querySelectorAll("#optsWrap .opt");
-  if (opts[e.picked]) opts[e.picked].click();     // reselect the earlier answer through the normal path (arms Next question), so the change is deliberate
+  // Reselect the earlier answer through the normal path (arms Next question), so the change is deliberate.
+  // Multi-select context items (context_module.js) skip this: renderContextItem() already initialises its
+  // selection from state.ctx.answers, and e.picked is an array there, not a single option index to click.
+  if (!Array.isArray(e.picked)) {
+    const opts = document.querySelectorAll("#optsWrap .opt");
+    if (opts[e.picked]) opts[e.picked].click();
+  }
   state.itemShownAt = performance.now() - 2 * FAST_RESPONSE_MS;      // a correction is not a rushed answer
 }
 const navRow = document.getElementById("navRow");
 let confirmingRestart = false;
 function refreshNav() {
-  const active = state && ["safety", "value", "core", "postpartum", "done"].includes(state.phase) && screenEl.children.length;
+  renderPhaseStepper();
+  const active = state && ["safety", "context", "value", "core", "postpartum", "timing", "sensitive", "done"].includes(state.phase) && screenEl.children.length;
   if (!active) { navRow.hidden = true; navRow.innerHTML = ""; return; }
   const back = undoStack.length
     ? `<button type="button" class="nav-btn" id="navBack">${state.phase === "done" ? "Change my last answer" : "Previous question"}</button>` : "<span></span>";
@@ -1646,6 +2473,217 @@ function refreshNav() {
   on("navRestartYes", () => { confirmingRestart = false; document.getElementById("safetyOverlay").style.display = "none"; startSession(); });
 }
 if (CAN_UNDO) new MutationObserver(() => { confirmingRestart = false; refreshNav(); }).observe(screenEl, { childList: true });
+
+// ---------------------------------------------------------------------------------------------------------------
+// v17: the How-it-works / About page (NEXT_STEPS_v14-v17.md Part E). Built here, not typed into the HTML above,
+// so every genuine number is either a LIVE reference to an already-existing engine constant (${SD_CONFIDENT} etc.
+// -- the strongest possible guarantee against drift, since it is the actual executable value) or an interpolation
+// of ABOUT_FACTS (built by scripts/build_about_facts.py from this build's own evaluation/parity output; Part E.1:
+// "a test fails if any number in the About HTML is not present in the facts file"). Two reading levels per
+// section (Part E.1.3): a plain paragraph, and a "Technical detail" disclosure. Every claim carries an evidence
+// tier chip (Part E.1.2), reusing the manuscript's own five-tier vocabulary verbatim (manuscript/PLAN_figures_tables.md).
+// webapp/verification/test_about_facts.py checks this file's SOURCE (not the rendered DOM) for hardcoded numeric
+// literals outside of a ${...} interpolation, inside the about-section template strings below.
+// ---------------------------------------------------------------------------------------------------------------
+// BEGIN v17 ABOUT SECTION SOURCE -- checked by webapp/verification/test_about_facts.py, do not remove this marker
+const EVIDENCE_TIERS = {
+  real_mothers: "Real mothers", real_dass: "Real DASS respondents", simulated: "Simulated respondents",
+  software_test: "Software test", published: "Published source",
+};
+function evChip(key) { return `<span class="ev-chip">${EVIDENCE_TIERS[key]}</span>`; }
+function evChips(keys) { return `<div class="ev-chips">${keys.map(evChip).join("")}</div>`; }
+function techDetail(html) { return html ? `<details class="about-tech"><summary>Technical detail</summary>${html}</details>` : ""; }
+function aboutSub(num, title, id, chips, plainHtml, techHtml) {
+  return `<div class="about-sub" id="about-${id}">
+    <h3>${num}. ${title}</h3>
+    ${evChips(chips)}
+    <div class="about-plain">${plainHtml}</div>
+    ${techDetail(techHtml)}
+  </div>`;
+}
+function pipelineFlowHtml(steps) {
+  return `<div class="pipeline-flow">${steps.map((s, i) =>
+    (i ? `<div class="pipeline-arrow">&#8594;</div>` : "") +
+    `<div class="pipeline-step"><b>${s.label}</b>${s.detail}</div>`
+  ).join("")}</div>`;
+}
+
+// ---- Section 5's live worked example: runs the REAL engine functions (pickNextValueItem, recordResponse,
+// shouldStop) against a FIXED synthetic respondent -- not a hand-drawn animation, so it cannot drift from what
+// ships (Part E.1.4). The respondent's rule is deliberately the simplest possible and fully auditable: answer
+// exactly the middle response category of whichever item the engine actually asks (no per-item hardcoded table,
+// no randomness), so the demonstration is about the SELECTION MECHANISM and the posterior narrowing, not about
+// symptom severity. webapp/verification/test_worked_example_browser.mjs checks this trace against
+// selection-engine/scripts/engine_5domain.run_session() given the identical rule (replay equality), so it is
+// provably the shipped engine, not a reimplementation.
+function workedExampleCategory(item) {
+  const nCat = (item.labels_en || RESPONSE_LABELS).length;
+  return Math.floor(nCat / 2);
+}
+function runWorkedExample(maxSteps) {
+  maxSteps = maxSteps || 30;
+  const savedState = state, savedUndo = undoStack;
+  state = freshState();
+  state.phase = "value";
+  const steps = [];
+  let stopReason = "budget_reached";
+  for (let i = 0; i < maxSteps; i++) {
+    const check = shouldStop();
+    if (check.stop) { stopReason = check.reason; break; }
+    const n = pickNextValueItem();
+    if (n === null) { stopReason = "items_exhausted"; break; }
+    const item = ITEM_BY_N[n];
+    const response = workedExampleCategory(item);
+    recordResponse(item, response, false);
+    steps.push({
+      n, domain: item.domain, text: item.text_en, response,
+      theta: Object.assign({}, state.theta), sds: Object.assign({}, state.sds),
+    });
+  }
+  const result = { steps, stopReason, finalTheta: Object.assign({}, state.theta), finalSd: Object.assign({}, state.sds) };
+  state = savedState; undoStack = savedUndo;
+  return result;
+}
+function renderWorkedExample() {
+  const el = document.getElementById("workedExampleBox");
+  if (!el) return;
+  const r = runWorkedExample();
+  const stepsHtml = r.steps.map((s, i) =>
+    `<div class="we-step"><span>${i + 1}. [${s.domain}] ${s.text}</span><span>SD ${s.sds[s.domain].toFixed(2)}</span></div>`
+  ).join("");
+  const sdBars = DOMAINS.map(d => {
+    const sd = r.finalSd[d];
+    const pct = Math.max(0, Math.min(100, (1 - sd) * 100));
+    const thresholdPct = Math.max(0, Math.min(100, (1 - SD_CONFIDENT) * 100));
+    return `<div class="we-sd-row"><span style="width:70px">${d}</span>
+      <div class="we-sd-track"><i class="we-sd-fill" style="width:${pct}%"></i><b class="we-sd-threshold" style="left:${thresholdPct}%"></b></div>
+      <span>SD ${sd.toFixed(2)}</span></div>`;
+  }).join("");
+  el.innerHTML = `
+    <p style="font-size:13px;color:var(--ink-soft);margin:0 0 10px">
+      ${r.steps.length} items asked, stopped because <b>${r.stopReason.replace(/_/g, " ")}</b>.
+      Each row is a real call to this build's own item-selection and belief-update code -- nothing here is drawn or scripted.
+    </p>
+    <div class="we-sd-bar">${sdBars}</div>
+    <div class="we-steps">${stepsHtml}</div>
+  `;
+}
+
+// ---- The 13 sections (Part E.2) -----------------------------------------------------------------------------
+function aboutContentHtml() {
+  const F = (typeof ABOUT_FACTS !== "undefined") ? ABOUT_FACTS : null;
+  if (!F) return `<p class="res-sub">about_facts.json could not be loaded -- run scripts/build_about_facts.py and webapp/verification/embed_items_into_app.py.</p>`;
+  const csp = document.querySelector('meta[http-equiv="Content-Security-Policy"]').content;
+  const domainCounts = DOMAINS.map(d => `${d} (${F.item_bank.items_by_domain[d]})`).join(", ");
+  const ctxItemsShipped = CONTEXT_MODULE_CORE_ONLY.enabled ? F.context_module.core_set_items : F.context_module.full_set_items;
+  const fitRows = F.measurement_model.model_fit_comparison_AIC_BIC_logLik.map(r =>
+    `<tr><td>${r.model}${r.model === F.measurement_model.winner ? " (best fit)" : ""}</td><td>${r.AIC.toLocaleString()}</td><td>${r.BIC.toLocaleString()}</td><td>${r.logLik.toLocaleString()}</td></tr>`).join("");
+  const capRows = DOMAINS.map(d => `<tr><td>${d}</td><td>${MAX_ITEMS_PER_DOMAIN[d]}</td></tr>`).join("");
+  const bandRows = SEVERITY_BANDS.bands.map(b => `<tr><td>${b.label}</td><td>${b.min}–${b.max}</td></tr>`).join("");
+  const pbq = (typeof POSTPARTUM_MODULE !== "undefined") ? POSTPARTUM_MODULE.subscales : null;
+
+  const toc = `<div class="about-toc">${[
+    "What this is", "Your answers' journey", "Where the questions come from", "How the model learned",
+    "How the next question is chosen", "When it stops", "The Aggregate PPD Score", "The bonding module",
+    "Your background", "Safety", "What has been tested", "Privacy", "References",
+  ].map((t, i) => `<a href="#about-${i + 1}">${i + 1}. ${t}</a>`).join("")}</div>`;
+
+  const sections = [
+    aboutSub(1, "What this tool is and is not", 1, ["software_test"], `
+      <p>PPD-Adapt is a <b>research prototype</b>. It is not a validated diagnostic tool for postpartum depression, and no clinician has signed off on any of its clinical wording yet -- every module that speaks to you carries an <code>UNSIGNED</code> marker in its source until one does. It asks adaptive questions across ${DOMAINS.length} domains (Depression, Anxiety, Stress, Fatigue, Sleep) from an ${F.item_bank.total_items}-item bank, plus background/context questions and a postpartum bonding module.</p>
+      <p>What it IS meant to do: give an honest, self-explaining estimate of general distress and flag a few things worth a real conversation with a clinician. What it is NOT: a screening tool cleared for deployment (<code>docs/gate1_artifact_decision.md</code> is still an open decision about what this artifact should even be used for), a crisis service, or a source of clinical advice -- no advice is authored anywhere in this app.</p>`,
+      `<p>Item bank composition: ${domainCounts}.</p>`),
+
+    aboutSub(2, "Your answers' journey", 2, ["software_test"], `
+      <p>Every session follows the same fixed order. Two stages are conditional: the bonding module is skipped if you say you're currently pregnant, and the last stage only appears if your Depression or Anxiety answers came out elevated.</p>`,
+      pipelineFlowHtml([
+        { label: "Safety", detail: `${SAFETY_ITEMS.length} fixed items, always first` },
+        { label: "About you", detail: `${ctxItemsShipped} background questions` },
+        { label: "How you're feeling", detail: `adaptive, mean ${F.parity ? F.parity.adaptive_items_mean.toFixed(1) : "?"} items` },
+        { label: "You and your baby", detail: "bonding questionnaire, skipped if pregnant" },
+        { label: "A few more details", detail: "only if elevated; privacy-gated block kept off by default" },
+        { label: "Results", detail: "this session's own summary" },
+      ]) + `<p style="margin-top:10px">Live parity check on this exact build: ${F.parity ? `${F.parity.n_sessions} sessions replayed through a real browser, ${F.parity.sessions_with_divergence} disagreed with the reference engine (fixture ${F.parity.fixture_version})` : "not yet run"}.</p>`),
+
+    aboutSub(3, "Where the questions come from", 3, ["published"], `
+      <p>The symptom items are the public-domain DASS-42 (Depression/Anxiety/Stress, 14 items each) plus PROMIS Fatigue and Sleep Disturbance item banks (${F.item_bank.items_by_domain.Fatigue} and ${F.item_bank.items_by_domain.Sleep} items). One unscored question (PHQ-9's appetite item, public domain) is always asked so every DSM-5 depressive symptom is covered. Background questions (this session asked ${ctxItemsShipped} of them, ${CONTEXT_MODULE_CORE_ONLY.enabled ? "the shorter core set -- the full " + F.context_module.full_set_items + "-item set is a research/manuscript option, not part of the default session" : "the full research set"}), the ${F.timing_module.items}-item timing/duration/impairment block, and the ${F.sensitive_module.items}-item sensitive-experiences block (${BLOCK_S_ENABLED.enabled ? "currently enabled" : "currently kept OFF -- no real support-pathway referral exists yet for it"}) are the project's own design, built against published risk-factor evidence, not a validated instrument.</p>`,
+      `<table><tr><th>Instrument</th><th>Licence</th></tr>
+        <tr><td>DASS-42</td><td>Public domain (Lovibond &amp; Lovibond, verified at source)</td></tr>
+        <tr><td>PROMIS Fatigue / Sleep Disturbance</td><td>HealthMeasures Terms -- research/scoring only, no redistribution</td></tr>
+        <tr><td>PHQ-9 (appetite item)</td><td>Public domain</td></tr>
+        <tr><td>PBQ (bonding module)</td><td>Reported free to use, secondary source only -- not independently confirmed</td></tr>
+        <tr><td>OSSS-3 (social support)</td><td>Published, free to use (Kocalevent et al. 2018)</td></tr>
+      </table><p>Full log: <code>data-foundation/docs/DATA_LICENSES.md</code>.</p>`),
+
+    aboutSub(4, "How the model learned", 4, ["real_dass", "published"], `
+      <p>The symptom items' parameters come from fitting a <b>bifactor graded-response model</b> (one general distress factor plus Depression/Anxiety/Stress-specific factors) to <b>${F.measurement_model.n_dass42_respondents.toLocaleString()}</b> real DASS-42 respondents, after removing careless/low-quality responses. The bifactor structure was compared against two simpler alternatives on the same data and won on every fit index, by a wide margin.</p>
+      <p><b>Caveat:</b> these respondents are internet volunteers who opted into a personality-test style survey, not a clinical or postpartum sample, and the age distribution needed reweighting to look like a general population.</p>`,
+      `<table><tr><th>Model</th><th>AIC</th><th>BIC</th><th>log-likelihood</th></tr>${fitRows}</table>`),
+
+    aboutSub(5, "How the next question is chosen", 5, ["software_test"], `
+      <p>After each answer, the engine updates a running estimate ("theta") for the general factor and for the specific domain the item belongs to, then picks whichever remaining item currently carries the most statistical information about that domain -- the question most likely to actually change what it knows. It never repeats an item, and it makes sure at least one item from each of ${CONTENT_CONSTRAINTS.length} core symptom groups (low mood, loss of interest, worthlessness/guilt, concentration, psychomotor change) is asked, not only whichever happens to be most "informative" in the abstract.</p>
+      <div class="we-box" id="workedExampleBox">
+        <button type="button" class="we-btn" id="runWorkedExampleBtn">Run the worked example</button>
+        <p style="font-size:12.5px;color:var(--ink-soft);margin-top:10px">Replays a fixed synthetic respondent through this build's real selection code and shows each domain's uncertainty (SD) narrowing.</p>
+      </div>`,
+      `<p>Item value = specific-factor information at the domain's current estimate (general-factor loading deliberately excluded). Selection is domain-first: under-covered domains first, then the least-certain unresolved domain, ties broken by item order.</p>
+       <table><tr><th>Domain</th><th>Correlation with using the full item bank</th></tr>${
+         DOMAINS.map(d => `<tr><td>${d}</td><td>${F.budget_recovery_correlation.by_domain[d].r_vs_full_bank}</td></tr>`).join("")
+       }</table><p>${F.budget_recovery_correlation.caveat}. Source: ${F.budget_recovery_correlation.source}.</p>`),
+
+    aboutSub(6, "When it stops", 6, ["simulated", "software_test"], `
+      <p>A domain is done once it has at least one item from every required symptom group AND either its uncertainty (SD) drops to <b>${SD_CONFIDENT}</b> or below, its estimate is low enough (≤ ${RULE_OUT_MEAN}) with a decent SD (≤ ${RULE_OUT_SD}) to rule it out, or the posterior is <b>${Math.round(DECISION_CONFIDENT * 100)}%</b> confident which side of its nearest severity boundary the answers place it on. Normally that happens within ${NORMAL_CAP} items per domain; a domain that hasn't settled by then can continue into a deeper tier, up to its own full item count.</p>
+      <p>A looser stopping rule was considered and rejected: it would ask fewer questions but report a false sense of firmness on genuinely uncertain domains, which this project treats as worse than asking a few more questions.</p>`,
+      `<table><tr><th>Domain</th><th>Deep-tier cap</th></tr>${capRows}</table><p>Whole-engine safety valve: ${MAX_BUDGET} adaptive items.</p>`),
+
+    aboutSub(7, "How the Aggregate PPD Score is computed", 7, ["real_dass"], `
+      <p>This is an estimate of which published DASS-42 Depression severity band you would have landed in had you answered all 14 Depression items, based on a posterior that fixes the items you actually answered at your reported value and estimates only the ones you weren't asked. The shown level is the band where the running probability first passes 50%; if the top band's own probability is under ${Math.round(SEVERITY_BANDS.borderline_below_probability * 100)}%, the result is flagged "borderline."</p>
+      <p>On ${F.severity_band_agreement.n.toLocaleString()} real DASS respondents, this method's shown band matched their true full-scale band exactly <b>${Math.round(F.severity_band_agreement.exact * 100)}%</b> of the time (<b>${Math.round(F.severity_band_agreement.within_one * 100)}%</b> within one band; weighted kappa ${F.severity_band_agreement.quadratic_weighted_kappa}). The "what makes up this score" donut beside it splits the same total into what you actually answered and what is estimated for questions you weren't asked -- never a different number from the one shown here.</p>`,
+      `<table><tr><th>Band</th><th>Full-scale range</th></tr>${bandRows}</table>
+       <p>Borderline sessions agreed exactly ${Math.round(F.severity_band_agreement.borderline_exact * 100)}% of the time vs. ${Math.round(F.severity_band_agreement.not_borderline_exact * 100)}% for clear ones -- the flag means what it says. Mean Depression items actually asked: ${F.severity_band_agreement.depression_items_asked_mean} (range ${F.severity_band_agreement.depression_items_asked_min}–${F.severity_band_agreement.depression_items_asked_max}). ${F.severity_band_agreement.note}</p>`),
+
+    aboutSub(8, "How the bonding module works", 8, ["published", "software_test"], pbq ? `
+      <p>The Postpartum Bonding Questionnaire (Brockington et al., 2006) is rule-based, not adaptive: a short screener is always asked, and only the subscales it flags are expanded, in the instrument's own published order, stopping the moment the published cut-off is decided either way (never asking more than needed for a yes/no answer, though the exact score is only shown if every item was asked). The screener's own bar is lower when Depression or Anxiety already came out elevated.</p>
+      <p>Two published items are deliberately never asked: one is a disclosure of a past act rather than a screening question, and the other duplicates a question already in this session's unconditional safety block.</p>`
+      : `<p>The bonding module could not be loaded in this build.</p>`,
+      pbq ? `<table><tr><th>Subscale</th><th>Published cut-off</th></tr>${Object.values(pbq).map(s => `<tr><td>${s.name}</td><td>&ge; ${s.cutoff_high}</td></tr>`).join("")}</table>` : ""),
+
+    aboutSub(9, "How your background is used, and not used", 9, ["real_mothers", "published"], `
+      <p>The background/history questions never change your score. They only change three things: whether the bonding module is offered at all (skipped if you're currently pregnant), what is shown alongside your results (a plain-language background summary, never added into the score), and -- only when a strong history factor is present -- how many symptom questions the engine asks before it is willing to stop, so a firm "not much going on" conclusion needs a bit more evidence when there is a stronger prior reason to look carefully.</p>
+      <p>Why not use your background to set a head start on the score itself? Two reasons: no accurate tool exists for turning risk factors into a probability of PPD (USPSTF, 2019), and short adaptive tests like this one can be badly distorted by a wrong starting point (Frans et al., 2023) -- a risk this project decided not to take, especially since it would systematically pull low-risk mothers' scores down.</p>
+      <p>On ${F.context_incremental_value.n} real mothers with complete data, adding these background factors to a short adaptive symptom check did <b>not</b> improve detection of current elevated symptoms: change in accuracy (AUC) = <b>${F.context_incremental_value.delta_auc}</b> (95% CI ${F.context_incremental_value.delta_auc_ci95[0]} to ${F.context_incremental_value.delta_auc_ci95[1]}) -- a real result for this sample and this short symptom form, not a universal claim.</p>`,
+      `<p>${F.context_incremental_value.note}</p>`),
+
+    aboutSub(10, "Safety", 10, ["software_test"], `
+      <p>${SAFETY_ITEMS.length} safety questions are asked unconditionally, before anything adaptive, and are never skipped or optimised away. A positive answer to any of them shows an in-context message immediately, routed to a category-specific pathway (harm to yourself vs. harm to your baby) -- never a generic message. Once the safety block ends, its answers are locked: there is no "Previous question" back into it, and an escalation cannot be undone by changing your mind afterward.</p>`,
+      `<p>Escalation content is read from a separate, clinician-authored source file; while any category's wording is unsigned, the app shows only a plain notice and the universal "emergency services / someone you trust" pointer -- it never invents phone numbers or clinical wording itself.</p>`),
+
+    aboutSub(11, "What has been tested, and what has not", 11, ["software_test", "real_dass", "real_mothers"], `
+      <p>${F.parity ? `<b>${F.parity.n_sessions}</b> sessions, replayed through a real browser and compared item-by-item against an independent reference implementation: <b>${F.parity.n_sessions - F.parity.sessions_with_divergence}/${F.parity.n_sessions}</b> matched exactly.` : "The automated parity check has not yet been run against this exact build."} A separate mutation-testing harness deliberately breaks the code in known ways and confirms the test suite actually notices. On a held-out sample of real mothers, a ${F.held_sample_concordance.n === undefined ? "" : ""}3-item adaptive short form <b>concorded</b> with a longer published questionnaire's own threshold at AUC <b>${F.held_sample_concordance.auc_at_3_items}</b> (n=${F.held_sample_concordance.n}) -- ${F.held_sample_concordance.note}.</p>
+      <p><b>Not done:</b> validation against a clinical interview, calibration on a postpartum-specific sample (the model above learned from a general internet sample), usability testing, and review by a clinician panel. None of the clinical wording in this app has been signed off yet.</p>`,
+      `<p>Concordance AUC at the full symptom-item set: ${F.held_sample_concordance.auc_full_item_set}. Source: ${F.held_sample_concordance.source} (${F.held_sample_concordance.pool}).</p>`),
+
+    aboutSub(12, "Privacy", 12, ["software_test"], `
+      <p>This page runs entirely on your device. Its own security policy is read directly from the page you're looking at right now, not described from memory: <code>${csp}</code> -- in particular, <code>connect-src 'none'</code> means the browser itself refuses to let this page make any network request, to anywhere, for the rest of the session. Nothing is stored outside this browser tab, and an offline copy is cached so a session can be completed without a connection at all.</p>`,
+      ""),
+
+    aboutSub(13, "References", 13, ["published"], `
+      <p>USPSTF (2019), <i>Perinatal Depression: Preventive Interventions</i>. Lovibond &amp; Lovibond (1995), <i>Manual for the DASS</i>. Kroenke, Spitzer &amp; Williams (2001), the PHQ-9. Brockington et al. (2006), the Postpartum Bonding Questionnaire. Kocalevent et al. (2018), the Oslo Social Support Scale (OSSS-3). van der Linden (1999) and Frans et al. (2023) on empirical priors in adaptive testing. Full reference list with links: <code>NEXT_STEPS_v14-v17.md</code>, Part H.</p>`,
+      ""),
+  ];
+
+  return toc + sections.join("");
+}
+
+function renderAboutSection() {
+  const el = document.getElementById("aboutContent");
+  if (!el) return;
+  el.innerHTML = aboutContentHtml();
+  const btn = document.getElementById("runWorkedExampleBtn");
+  if (btn) btn.onclick = renderWorkedExample;
+}
+renderAboutSection();
+// END v17 ABOUT SECTION SOURCE
 
 // Offline support: register the service worker only where browsers allow it (http(s)/localhost).
 // Under file:// there is nothing to register and the app already runs from the one file.
